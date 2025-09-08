@@ -36,6 +36,7 @@ onMounted(async () => {
       title: p.title,
       excerpt: p.excerpt,
       content: p.content,
+      coverImageUrl: p.coverImageUrl,
       categories: (p.categories || []).map((c: any) => c.category?.name).filter(Boolean),
       tags: (p.tags || []).map((t: any) => t.tag?.name).filter(Boolean),
       author: p.author?.name || 'Unknown',

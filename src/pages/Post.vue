@@ -29,6 +29,7 @@ onMounted(async () => {
       title: data.title,
       excerpt: data.excerpt,
       content: data.content,
+      coverImageUrl: data.coverImageUrl,
       categories: (data.categories || []).map((c: any) => c.category?.name).filter(Boolean),
       tags: (data.tags || []).map((t: any) => t.tag?.name).filter(Boolean),
       author: data.author?.name || 'Unknown',
@@ -120,9 +121,9 @@ const hasUser = computed(() => !!user.value)
       <div
         class="mt-6 aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-ink-100 to-ink-50"
       ></div>
-
-      <div class="mt-8 text-ink-800 leading-relaxed space-y-4">
-        <div v-html="post.content" />
+      <div class="prose prose-ink max-w-none">
+        <img v-if="post.coverImageUrl" :src="post.coverImageUrl" alt="Cover" class="mb-6 w-full rounded-lg object-cover" />
+        <div v-html="post.content"></div>
       </div>
 
       <div class="mt-8 flex flex-wrap gap-2">
