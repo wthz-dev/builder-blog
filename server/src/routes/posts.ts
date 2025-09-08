@@ -79,20 +79,19 @@ router.get('/:slug', async (req, res) => {
 // POST /api/posts - create a post (protected)
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { slug, title, excerpt, content, tags, categories } = req.body as {
-      slug?: string
-      title?: string
-      excerpt?: string
-      content?: string
+    const { slug, title, excerpt, content, tags, categories, coverImageUrl } = req.body as {
+      slug: string
+      title: string
+      excerpt: string
+      content: string
       tags?: string[]
       categories?: string[]
+      coverImageUrl?: string
     }
 
     if (!slug || !title || !excerpt || !content) {
       return res.status(400).json({ error: 'slug, title, excerpt, content are required' })
     }
-
-    const authorId = req.auth!.userId
 
     const result = await prisma.$transaction(async (tx) => {
       // ensure unique slug
@@ -124,25 +123,32 @@ router.post('/', requireAuth, async (req, res) => {
           )
         : []
 
-      const post = await tx.post.create({
-        data: { slug, title, excerpt, content, authorId },
+      const created = await tx.post.create({
+        data: {
+          slug,
+          title,
+          excerpt,
+          content,
+          coverImageUrl: coverImageUrl ?? null,
+          authorId: req.auth!.userId,
+        },
       })
 
       if (tagRecords.length) {
         await tx.postTag.createMany({
-          data: tagRecords.map((t) => ({ postId: post.id, tagId: t.id })),
+          data: tagRecords.map((t) => ({ postId: created.id, tagId: t.id })),
           skipDuplicates: true,
         })
       }
 
       if (categoryRecords.length) {
         await tx.postCategory.createMany({
-          data: categoryRecords.map((c) => ({ postId: post.id, categoryId: c.id })),
+          data: categoryRecords.map((c) => ({ postId: created.id, categoryId: c.id })),
           skipDuplicates: true,
         })
       }
 
-      return post
+      return created
     })
 
     return res.status(201).json(result)
@@ -158,13 +164,14 @@ router.post('/', requireAuth, async (req, res) => {
 router.put('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params
-    const { slug, title, excerpt, content, tags, categories } = req.body as {
+    const { slug, title, excerpt, content, tags, categories, coverImageUrl } = req.body as {
       slug?: string
       title?: string
       excerpt?: string
       content?: string
       tags?: string[]
       categories?: string[]
+      coverImageUrl?: string | null
     }
 
     const exists = await prisma.post.findUnique({ where: { id } })
@@ -184,6 +191,7 @@ router.put('/:id', requireAuth, async (req, res) => {
           title: title ?? exists.title,
           excerpt: excerpt ?? exists.excerpt,
           content: content ?? exists.content,
+          coverImageUrl: typeof coverImageUrl === 'undefined' ? exists.coverImageUrl : coverImageUrl,
         },
       })
 

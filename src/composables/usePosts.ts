@@ -6,6 +6,7 @@ export interface Post {
   title: string
   excerpt: string
   content: string
+  coverImageUrl: string | null
   publishedAt: string
 }
 
@@ -35,6 +36,7 @@ export function usePosts() {
     content: string
     tags?: string[]
     categories?: string[]
+    coverImageUrl?: string | null
   }) {
     return apiFetch<any>('/api/posts', {
       method: 'POST',
@@ -49,6 +51,7 @@ export function usePosts() {
     content?: string
     tags?: string[]
     categories?: string[]
+    coverImageUrl?: string | null
   }) {
     return apiFetch<any>(`/api/posts/${encodeURIComponent(id)}`, {
       method: 'PUT',

@@ -111,6 +111,7 @@ async function onDelete(p: any) {
         <table class="min-w-full divide-y divide-ink-100 text-sm">
           <thead>
             <tr class="text-left text-ink-500">
+              <th class="py-2">Cover</th>
               <th class="py-2">Title</th>
               <th class="py-2">Slug</th>
               <th class="py-2">Date</th>
@@ -119,12 +120,16 @@ async function onDelete(p: any) {
           </thead>
           <tbody class="divide-y divide-ink-100">
             <tr v-if="loading">
-              <td class="py-4 text-ink-600" colspan="4">Loading posts...</td>
+              <td class="py-4 text-ink-600" colspan="5">Loading posts...</td>
             </tr>
             <tr v-else-if="error">
-              <td class="py-4 text-red-600" colspan="4">{{ error }}</td>
+              <td class="py-4 text-red-600" colspan="5">{{ error }}</td>
             </tr>
             <tr v-else v-for="p in posts" :key="p.id">
+              <td class="py-2">
+                <img v-if="p.coverImageUrl" :src="p.coverImageUrl" alt="cover" class="h-10 w-10 rounded object-cover" />
+                <div v-else class="h-10 w-10 rounded bg-ink-100"></div>
+              </td>
               <td class="py-2 font-medium text-ink-900">{{ p.title }}</td>
               <td class="py-2">{{ p.slug }}</td>
               <td class="py-2">{{ new Date(p.publishedAt).toLocaleDateString() }}</td>

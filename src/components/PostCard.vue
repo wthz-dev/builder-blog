@@ -17,8 +17,10 @@ const formattedDate = computed(() =>
   <article
     class="group overflow-hidden rounded-xl border border-ink-100 bg-white shadow-soft transition hover:-translate-y-0.5 hover:shadow-lg"
   >
+  <!-- <pre> {{ post }}</pre> -->
     <RouterLink :to="{ name: 'post', params: { slug: post.slug } }" class="block">
-      <div class="aspect-[16/9] w-full bg-gradient-to-br from-brand-100 to-brand-200"></div>
+      <img v-if="post.coverImageUrl" :src="post.coverImageUrl" alt="Cover" class="aspect-[16/9] w-full rounded-lg object-cover" />
+      <div v-else class="aspect-[16/9] w-full bg-gradient-to-br from-brand-100 to-brand-200"></div>
       <div class="space-y-3 p-5">
         <div class="flex items-center gap-2 text-xs text-ink-500">
           <span>{{ formattedDate }}</span>

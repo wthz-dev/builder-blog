@@ -21,6 +21,10 @@ const excerpt = ref('')
 const content = ref('')
 const tags = ref('')
 const categories = ref('')
+const coverImageUrl = ref<string | null>(null)
+const coverPreview = ref<string | null>(null)
+const uploadingCover = ref(false)
+const uploadError = ref<string | null>(null)
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -74,6 +78,7 @@ onMounted(async () => {
       content.value = p.content
       tags.value = (p.tags || []).map((t: any) => t.tag?.name).filter(Boolean).join(', ')
       categories.value = (p.categories || []).map((c: any) => c.category?.name).filter(Boolean).join(', ')
+      coverImageUrl.value = p.coverImageUrl || null
     } catch (e: any) {
       error.value = e?.message || 'Failed to load post'
     } finally {
@@ -99,6 +104,7 @@ async function submit() {
         content: content.value,
         tags: tagsArr,
         categories: categoriesArr,
+        coverImageUrl: coverImageUrl.value || undefined,
       })
       success.value = 'Post created'
       // navigate back to list
@@ -113,6 +119,7 @@ async function submit() {
       content: content.value || undefined,
       tags: tagsArr,
       categories: categoriesArr,
+      coverImageUrl: coverImageUrl.value ?? null,
     })
     success.value = 'Post updated'
   } catch (e: any) {
@@ -120,6 +127,48 @@ async function submit() {
   } finally {
     saving.value = false
   }
+}
+
+function revokePreview() {
+  if (coverPreview.value) URL.revokeObjectURL(coverPreview.value)
+  coverPreview.value = null
+}
+
+async function onCoverSelected(e: Event) {
+  const files = (e.target as HTMLInputElement).files
+  if (!files || !files[0]) return
+  const file = files[0]
+  uploadError.value = null
+  uploadingCover.value = true
+  try {
+    // local preview
+    revokePreview()
+    coverPreview.value = URL.createObjectURL(file)
+
+    const cloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+    const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    if (!cloud || !preset) throw new Error('Missing Cloudinary config')
+
+    const fd = new FormData()
+    fd.append('upload_preset', preset)
+    fd.append('file', file)
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/upload`, {
+      method: 'POST',
+      body: fd,
+    })
+    if (!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
+    coverImageUrl.value = data.secure_url || data.url
+  } catch (err: any) {
+    uploadError.value = err?.message || 'Failed to upload cover image'
+  } finally {
+    uploadingCover.value = false
+  }
+}
+
+function removeCover() {
+  coverImageUrl.value = null
+  revokePreview()
 }
 </script>
 
@@ -153,6 +202,18 @@ async function submit() {
           </div>
           <input v-model="excerpt" placeholder="Excerpt" class="rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none" />
           <textarea v-model="content" placeholder="Content (HTML supported)" class="min-h-40 rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none"></textarea>
+          <div class="grid gap-3 md:grid-cols-2">
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-ink-800">Cover Image</label>
+              <input type="file" accept="image/*" @change="onCoverSelected" class="block w-full text-sm" />
+              <p v-if="uploadError" class="text-xs text-red-600">{{ uploadError }}</p>
+              <p v-if="uploadingCover" class="text-xs text-ink-500">Uploading cover...</p>
+            </div>
+            <div v-if="coverImageUrl || coverPreview" class="flex items-end gap-3">
+              <img :src="coverPreview || coverImageUrl!" alt="Cover" class="h-24 w-24 rounded object-cover" />
+              <button type="button" @click="removeCover" class="rounded border border-ink-200 px-2 py-1 text-sm hover:bg-ink-50">Remove</button>
+            </div>
+          </div>
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
             <input v-model="tags" placeholder="Tags (comma separated)" class="rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none" />
             <input v-model="categories" placeholder="Categories (comma separated)" class="rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none" />

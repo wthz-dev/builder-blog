@@ -24,6 +24,7 @@ model Post {
   title       String
   excerpt     String
   content     String
+  coverImageUrl String?
   publishedAt DateTime   @default(now())
   author      User       @relation(fields: [authorId], references: [id])
   authorId    String
