@@ -12,7 +12,8 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "server:dev": "tsx watch server/src/index.ts"
+    "server:dev": "tsx watch server/src/index.ts",
+    "server:start": "tsx server/src/index.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
