@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const props = defineProps<{ page: number; pageSize: number; total: number }>()
 const emit = defineEmits<{ change: [number] }>()
 
