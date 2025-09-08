@@ -1,12 +1,50 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet" />
+
+    <!-- Primary Meta Tags -->
+    <title>Torkait — Personal Tech Blog</title>
+    <meta name="title" content="Torkait — Personal Tech Blog" />
+    <meta name="description" content="A modern, SEO-ready personal blog built with Vue.js, TailwindCSS, and Node.js. Read recent posts, browse by category and tag, and learn more about the author." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="/" />
+    <meta property="og:title" content="Torkait — Personal Tech Blog" />
+    <meta property="og:description" content="A modern, SEO-ready personal blog built with Vue.js, TailwindCSS, and Node.js." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Torkait — Personal Tech Blog" />
+    <meta property="twitter:description" content="A modern, SEO-ready personal blog built with Vue.js, TailwindCSS, and Node.js." />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <!-- Base JSON-LD for Blog -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Torkait — Personal Tech Blog",
+        "url": "/",
+        "description": "Modern personal blog built with Vue.js and TailwindCSS",
+        "publisher": {
+          "@type": "Person",
+          "name": "Torkait Sukpramote"
+        }
+      }
+    </script>
   </head>
-  <body>
+  <body class="bg-white text-ink-900">
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
