@@ -49,7 +49,7 @@ onMounted(() => {
 
       <div class="mt-6 aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-ink-100 to-ink-50"></div>
 
-      <div class="prose prose-slate mt-8 max-w-none">
+      <div class="mt-8 text-ink-800 leading-relaxed space-y-4">
         <div v-html="post.content" />
       </div>
 
