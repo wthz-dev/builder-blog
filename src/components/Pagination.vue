@@ -14,16 +14,30 @@ function go(p: number) {
 
 <template>
   <div class="flex items-center justify-center gap-2">
-    <button class="rounded-lg border border-ink-200 px-3 py-1.5 text-sm text-ink-700 hover:bg-ink-50" @click="go(props.page - 1)">Prev</button>
+    <button
+      class="rounded-lg border border-ink-200 px-3 py-1.5 text-sm text-ink-700 hover:bg-ink-50"
+      @click="go(props.page - 1)"
+    >
+      Prev
+    </button>
     <template v-for="p in totalPages" :key="p">
       <button
         class="rounded-lg px-3 py-1.5 text-sm"
-        :class="p === props.page ? 'bg-ink-900 text-white' : 'border border-ink-200 text-ink-700 hover:bg-ink-50'"
+        :class="
+          p === props.page
+            ? 'bg-ink-900 text-white'
+            : 'border border-ink-200 text-ink-700 hover:bg-ink-50'
+        "
         @click="go(p as number)"
       >
         {{ p }}
       </button>
     </template>
-    <button class="rounded-lg border border-ink-200 px-3 py-1.5 text-sm text-ink-700 hover:bg-ink-50" @click="go(props.page + 1)">Next</button>
+    <button
+      class="rounded-lg border border-ink-200 px-3 py-1.5 text-sm text-ink-700 hover:bg-ink-50"
+      @click="go(props.page + 1)"
+    >
+      Next
+    </button>
   </div>
 </template>

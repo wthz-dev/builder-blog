@@ -13,8 +13,12 @@ const router = useRouter()
 const pageSize = 6
 const page = ref(Number(route.query.page || 1))
 
-const activeCategory = computed(() => (route.params.slug as string) && route.name === 'category' ? (route.params.slug as string) : null)
-const activeTag = computed(() => (route.params.slug as string) && route.name === 'tag' ? (route.params.slug as string) : null)
+const activeCategory = computed(() =>
+  (route.params.slug as string) && route.name === 'category' ? (route.params.slug as string) : null,
+)
+const activeTag = computed(() =>
+  (route.params.slug as string) && route.name === 'tag' ? (route.params.slug as string) : null,
+)
 
 const filtered = computed(() => {
   let list = [...allPosts]
@@ -38,7 +42,8 @@ watchEffect(() => {
 
   useSeo({
     title: baseTitle,
-    description: 'Read the latest articles on Vue, TailwindCSS, and Node.js from Torkait Sukpramote.',
+    description:
+      'Read the latest articles on Vue, TailwindCSS, and Node.js from Torkait Sukpramote.',
     type: 'website',
     schema: {
       '@context': 'https://schema.org',
@@ -60,17 +65,29 @@ function onPageChange(p: number) {
       <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 class="font-display text-3xl font-bold tracking-tight text-ink-900 md:text-4xl">
-            {{ activeCategory ? `Category: ${activeCategory}` : activeTag ? `Tag: ${activeTag}` : 'Latest Posts' }}
+            {{
+              activeCategory
+                ? `Category: ${activeCategory}`
+                : activeTag
+                  ? `Tag: ${activeTag}`
+                  : 'Latest Posts'
+            }}
           </h1>
           <p class="mt-2 max-w-2xl text-ink-600">
             Insights on Vue.js, TailwindCSS, Node.js, and building modern web apps.
           </p>
         </div>
         <div class="flex items-center gap-3">
-          <RouterLink to="/category/Vue" class="rounded-full bg-white px-4 py-2 text-sm font-medium text-brand-700 shadow">
+          <RouterLink
+            to="/category/Vue"
+            class="rounded-full bg-white px-4 py-2 text-sm font-medium text-brand-700 shadow"
+          >
             Explore Vue
           </RouterLink>
-          <RouterLink to="/tag/tailwind" class="rounded-full bg-ink-900 px-4 py-2 text-sm font-semibold text-white shadow-soft">
+          <RouterLink
+            to="/tag/tailwind"
+            class="rounded-full bg-ink-900 px-4 py-2 text-sm font-semibold text-white shadow-soft"
+          >
             #tailwind
           </RouterLink>
         </div>

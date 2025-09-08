@@ -15,7 +15,8 @@ export const posts: BlogPost[] = [
     id: '1',
     slug: 'getting-started-with-vue-3',
     title: 'Getting Started with Vue 3 and Composition API',
-    excerpt: 'A practical guide to building modern interfaces with Vue 3 and the Composition API. Learn core concepts and best practices.',
+    excerpt:
+      'A practical guide to building modern interfaces with Vue 3 and the Composition API. Learn core concepts and best practices.',
     content:
       '<p>Vue 3 introduces the Composition API, a set of additive, function-based APIs that allow flexible composition of component logic. It works alongside the Options API and is a great fit for complex components and libraries.</p><p>In this post, we will explore the core concepts of the Composition API, including reactive state, computed properties, lifecycle hooks, and reusability with composables.</p>',
     categories: ['Frontend', 'Vue'],
@@ -27,7 +28,8 @@ export const posts: BlogPost[] = [
     id: '2',
     slug: 'tailwindcss-productive-workflows',
     title: 'TailwindCSS: Productive Workflows for Beautiful UIs',
-    excerpt: 'How to design beautiful, responsive interfaces fast with TailwindCSS. Tips, patterns, and component structure included.',
+    excerpt:
+      'How to design beautiful, responsive interfaces fast with TailwindCSS. Tips, patterns, and component structure included.',
     content:
       '<p>TailwindCSS is a utility-first CSS framework that provides low-level utility classes you can compose to build any design, directly in your markup.</p><p>We will cover layout techniques, theming, and strategies for maintaining clean, scalable component styles.</p>',
     categories: ['Frontend', 'CSS'],
@@ -39,7 +41,8 @@ export const posts: BlogPost[] = [
     id: '3',
     slug: 'building-a-modern-node-api',
     title: 'Building a Modern Node.js API with Best Practices',
-    excerpt: 'From project structure to security and testing, learn how to create a robust Node.js REST API ready for production.',
+    excerpt:
+      'From project structure to security and testing, learn how to create a robust Node.js REST API ready for production.',
     content:
       '<p>Node.js provides a powerful platform for building scalable backends. We will look at structuring your app, validating inputs, handling errors, and integrating with databases.</p>',
     categories: ['Backend', 'Node.js'],

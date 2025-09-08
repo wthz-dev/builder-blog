@@ -13,7 +13,10 @@ export function useSeo(opts: SeoOptions) {
   const title = opts.title ? `${opts.title} • Torkait` : 'Torkait — Personal Tech Blog'
   document.title = title
 
-  setMeta('description', opts.description || 'A modern personal blog built with Vue.js and TailwindCSS')
+  setMeta(
+    'description',
+    opts.description || 'A modern personal blog built with Vue.js and TailwindCSS',
+  )
   setProperty('og:title', title)
   setProperty('og:description', opts.description || '')
   setProperty('og:type', opts.type || 'website')

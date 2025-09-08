@@ -18,7 +18,11 @@ const tags = computed(() => allTags())
           :key="c"
           :to="{ name: 'category', params: { slug: c } }"
           class="rounded-lg border px-3 py-1.5 text-sm"
-          :class="props.activeCategory === c ? 'border-brand-300 bg-brand-50 text-brand-800' : 'border-ink-200 text-ink-700 hover:bg-ink-50'"
+          :class="
+            props.activeCategory === c
+              ? 'border-brand-300 bg-brand-50 text-brand-800'
+              : 'border-ink-200 text-ink-700 hover:bg-ink-50'
+          "
         >
           {{ c }}
         </RouterLink>
@@ -33,7 +37,11 @@ const tags = computed(() => allTags())
           :key="t"
           :to="{ name: 'tag', params: { slug: t } }"
           class="rounded-full border px-3 py-1 text-xs"
-          :class="props.activeTag === t ? 'border-brand-300 bg-brand-50 text-brand-800' : 'border-ink-200 text-ink-700 hover:bg-ink-50'"
+          :class="
+            props.activeTag === t
+              ? 'border-brand-300 bg-brand-50 text-brand-800'
+              : 'border-ink-200 text-ink-700 hover:bg-ink-50'
+          "
         >
           #{{ t }}
         </RouterLink>

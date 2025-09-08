@@ -47,7 +47,9 @@ onMounted(() => {
         </span>
       </div>
 
-      <div class="mt-6 aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-ink-100 to-ink-50"></div>
+      <div
+        class="mt-6 aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-ink-100 to-ink-50"
+      ></div>
 
       <div class="mt-8 text-ink-800 leading-relaxed space-y-4">
         <div v-html="post.content" />
@@ -68,11 +70,27 @@ onMounted(() => {
         <h2 class="mb-4 text-lg font-semibold text-ink-900">Comments</h2>
         <p class="mb-4 text-sm text-ink-600">Comments are for demo only (no backend yet).</p>
         <form class="grid gap-4 md:grid-cols-2">
-          <input type="text" placeholder="Your name" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none" />
-          <input type="email" placeholder="Your email" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none" />
-          <textarea placeholder="Write a comment..." class="md:col-span-2 min-h-28 w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none"></textarea>
+          <input
+            type="text"
+            placeholder="Your name"
+            class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none"
+          />
+          <input
+            type="email"
+            placeholder="Your email"
+            class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none"
+          />
+          <textarea
+            placeholder="Write a comment..."
+            class="md:col-span-2 min-h-28 w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-brand-300 focus:outline-none"
+          ></textarea>
           <div class="md:col-span-2">
-            <button type="button" class="rounded-lg bg-ink-900 px-4 py-2 text-sm font-semibold text-white hover:bg-ink-800">Post comment</button>
+            <button
+              type="button"
+              class="rounded-lg bg-ink-900 px-4 py-2 text-sm font-semibold text-white hover:bg-ink-800"
+            >
+              Post comment
+            </button>
           </div>
         </form>
       </section>
@@ -81,6 +99,10 @@ onMounted(() => {
 
   <section v-else class="container py-16 text-center">
     <h1 class="text-2xl font-semibold">Post not found</h1>
-    <RouterLink to="/" class="mt-4 inline-block rounded-lg border border-ink-200 px-3 py-2 text-sm hover:bg-ink-50">Back to Home</RouterLink>
+    <RouterLink
+      to="/"
+      class="mt-4 inline-block rounded-lg border border-ink-200 px-3 py-2 text-sm hover:bg-ink-50"
+      >Back to Home</RouterLink
+    >
   </section>
 </template>

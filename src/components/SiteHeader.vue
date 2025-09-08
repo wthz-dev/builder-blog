@@ -14,10 +14,14 @@ const nav = [
 </script>
 
 <template>
-  <header class="sticky top-0 z-40 w-full border-b border-ink-100/80 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+  <header
+    class="sticky top-0 z-40 w-full border-b border-ink-100/80 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+  >
     <div class="container flex h-16 items-center justify-between">
       <RouterLink to="/" class="group inline-flex items-center gap-2">
-        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 shadow-soft"></div>
+        <div
+          class="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 shadow-soft"
+        ></div>
         <span class="font-display text-lg font-bold text-ink-900">Torkait</span>
       </RouterLink>
 
@@ -31,8 +35,16 @@ const nav = [
         >
           {{ item.label }}
         </RouterLink>
-        <RouterLink to="/login" class="rounded-lg bg-ink-900 px-3 py-2 text-sm font-semibold text-white shadow-soft hover:bg-ink-800">Login</RouterLink>
-        <RouterLink to="/register" class="rounded-lg border border-ink-200 px-3 py-2 text-sm font-semibold text-ink-900 hover:bg-ink-50">Sign up</RouterLink>
+        <RouterLink
+          to="/login"
+          class="rounded-lg bg-ink-900 px-3 py-2 text-sm font-semibold text-white shadow-soft hover:bg-ink-800"
+          >Login</RouterLink
+        >
+        <RouterLink
+          to="/register"
+          class="rounded-lg border border-ink-200 px-3 py-2 text-sm font-semibold text-ink-900 hover:bg-ink-50"
+          >Sign up</RouterLink
+        >
       </nav>
 
       <button
@@ -40,8 +52,28 @@ const nav = [
         aria-label="Toggle navigation"
         @click="mobileOpen = !mobileOpen"
       >
-        <svg v-if="!mobileOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+        <svg
+          v-if="!mobileOpen"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </button>
     </div>
 
@@ -57,8 +89,18 @@ const nav = [
           {{ item.label }}
         </RouterLink>
         <div class="mt-2 grid grid-cols-2 gap-2">
-          <RouterLink to="/login" class="rounded-lg bg-ink-900 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-ink-800" @click="mobileOpen = false">Login</RouterLink>
-          <RouterLink to="/register" class="rounded-lg border border-ink-200 px-3 py-2 text-center text-sm font-semibold text-ink-900 hover:bg-ink-50" @click="mobileOpen = false">Sign up</RouterLink>
+          <RouterLink
+            to="/login"
+            class="rounded-lg bg-ink-900 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-ink-800"
+            @click="mobileOpen = false"
+            >Login</RouterLink
+          >
+          <RouterLink
+            to="/register"
+            class="rounded-lg border border-ink-200 px-3 py-2 text-center text-sm font-semibold text-ink-900 hover:bg-ink-50"
+            @click="mobileOpen = false"
+            >Sign up</RouterLink
+          >
         </div>
       </div>
     </div>
