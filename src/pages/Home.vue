@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import PostCard from '@/components/PostCard.vue'
 import Pagination from '@/components/Pagination.vue'
-import { posts as allPosts } from '@/data/mockPosts'
+import type { BlogPost } from '@/data/mockPosts'
 import { useSeo } from '@/composables/useSeo'
+import { usePosts } from '@/composables/usePosts'
 
 const route = useRoute()
 const router = useRouter()
+const { list } = usePosts()
 
 const pageSize = 6
 const page = ref(Number(route.query.page || 1))
@@ -20,8 +22,34 @@ const activeTag = computed(() =>
   (route.params.slug as string) && route.name === 'tag' ? (route.params.slug as string) : null,
 )
 
+const apiPosts = ref<BlogPost[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+onMounted(async () => {
+  try {
+    const res = await list()
+    // Map API shape to BlogPost shape used by UI
+    apiPosts.value = res.map((p: any) => ({
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      content: p.content,
+      categories: (p.categories || []).map((c: any) => c.category?.name).filter(Boolean),
+      tags: (p.tags || []).map((t: any) => t.tag?.name).filter(Boolean),
+      author: p.author?.name || 'Unknown',
+      publishedAt: p.publishedAt,
+    }))
+  } catch (e: any) {
+    error.value = e?.message || 'Failed to load posts'
+  } finally {
+    loading.value = false
+  }
+})
+
 const filtered = computed(() => {
-  let list = [...allPosts]
+  let list = [...apiPosts.value]
   if (activeCategory.value) list = list.filter((p) => p.categories.includes(activeCategory.value!))
   if (activeTag.value) list = list.filter((p) => p.tags.includes(activeTag.value!))
   return list.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt))
