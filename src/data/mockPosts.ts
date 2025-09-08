@@ -4,6 +4,7 @@ export type BlogPost = {
   title: string
   excerpt: string
   content: string
+  coverImageUrl?: string | null
   categories: string[]
   tags: string[]
   author: string
