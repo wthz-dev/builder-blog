@@ -40,7 +40,14 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   const token = tokenRef.value
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(path.startsWith('/api') ? path : `/api${path}`, {
+  // Normalize path to start with /api
+  const apiPath = path.startsWith('/api') ? path : `/api${path}`
+  // Optional external API base (e.g. Render/Railway domain)
+  const base = (import.meta as any)?.env?.VITE_API_BASE as string | undefined
+  const baseTrimmed = base ? base.replace(/\/$/, '') : ''
+  const url = baseTrimmed ? `${baseTrimmed}${apiPath}` : apiPath
+
+  const res = await fetch(url, {
     ...options,
     headers,
   })
