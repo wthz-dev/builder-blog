@@ -23,10 +23,15 @@ router.get('/post/:slug', async (req, res) => {
     }
 
     const siteName = 'Torkait'
-    const url = `${req.protocol}://${req.get('host')}/post/${encodeURIComponent(slug)}`
+    const origin = `${req.protocol}://${req.get('host')}`
+    const url = `${origin}/post/${encodeURIComponent(slug)}`
     const title = `${post.title} • ${siteName}`
     const desc = post.excerpt || ''
-    const img = post.coverImageUrl || `${req.protocol}://${req.get('host')}/favicon.ico`
+    let img = post.coverImageUrl || '/favicon.ico'
+    if (!/^https?:\/\//i.test(img)) {
+      // make it absolute if relative
+      img = `${origin}${img.startsWith('/') ? '' : '/'}${img}`
+    }
 
     const html = `<!doctype html>
 <html lang="en">
@@ -39,6 +44,7 @@ router.get('/post/:slug', async (req, res) => {
   <meta property="og:description" content="${escapeHtml(desc)}" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="${escapeHtml(url)}" />
+  <meta property="og:site_name" content="${escapeHtml(siteName)}" />
   <meta property="og:image" content="${escapeHtml(img)}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${escapeHtml(title)}" />
