@@ -56,6 +56,7 @@ useHead(() => {
   const baseTitle = 'Torkait — Personal Tech Blog'
   const p = post.value
   const title = p ? `${p.title} • ${siteName}` : loading.value ? 'Loading…' : error.value ? 'Post not found' : baseTitle
+
   const desc = p?.excerpt || 'A modern personal blog built with Vue.js and TailwindCSS'
   const url = typeof location !== 'undefined' ? location.href : ''
   const image = p?.coverImageUrl
