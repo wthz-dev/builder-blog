@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma'
-import { requireAuth } from '../middleware/auth'
+import { requireAdmin } from '../middleware/auth'
 
 const router = Router()
 
@@ -77,7 +77,7 @@ router.get('/:slug', async (req, res) => {
 })
 
 // POST /api/posts - create a post (protected)
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAdmin, async (req, res) => {
   try {
     const { slug, title, excerpt, content, tags, categories, coverImageUrl } = req.body as {
       slug: string
@@ -161,7 +161,7 @@ router.post('/', requireAuth, async (req, res) => {
 })
 
 // PUT /api/posts/:id - update a post (protected)
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params
     const { slug, title, excerpt, content, tags, categories, coverImageUrl } = req.body as {
@@ -240,7 +240,7 @@ router.put('/:id', requireAuth, async (req, res) => {
 })
 
 // DELETE /api/posts/:id - delete a post (protected)
-router.delete('/:id', requireAuth, async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params
     const exists = await prisma.post.findUnique({ where: { id } })

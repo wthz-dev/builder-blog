@@ -15,8 +15,12 @@ const nav = [
   { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
-  { to: '/admin/posts', label: 'Admin' },
+  { to: '/admin/posts', label: 'Admin', requiresAdmin: true },
+  { to: '/admin/contacts', label: 'Contacts', requiresAdmin: true },
 ]
+
+const isAdmin = computed(() => user.value?.role === 'ADMIN')
+const visibleNav = computed(() => nav.filter((n) => !n.requiresAdmin || isAdmin.value))
 
 function doLogout() {
   logout()
@@ -36,7 +40,7 @@ function doLogout() {
 
       <nav class="hidden items-center gap-6 md:flex">
         <RouterLink
-          v-for="item in nav"
+          v-for="item in visibleNav"
           :key="item.to"
           :to="item.to"
           class="text-sm font-medium text-ink-600 hover:text-ink-900 transition-colors"
@@ -104,7 +108,7 @@ function doLogout() {
     <div v-show="mobileOpen" class="border-t border-ink-100 bg-white md:hidden">
       <div class="container flex flex-col gap-2 py-3">
         <RouterLink
-          v-for="item in nav"
+          v-for="item in visibleNav"
           :key="item.to + '-m'"
           :to="item.to"
           class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-700 hover:bg-ink-50"

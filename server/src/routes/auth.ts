@@ -18,9 +18,9 @@ router.post('/register', async (req, res) => {
 
     const secret = process.env.JWT_SECRET
     if (!secret) return res.status(500).json({ error: 'Server misconfiguration: JWT_SECRET missing' })
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '7d' })
+    const token = jwt.sign({ userId: user.id, role: user.role }, secret, { expiresIn: '7d' })
 
-    res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name } })
+    res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Registration failed' })
@@ -40,9 +40,9 @@ router.post('/login', async (req, res) => {
 
     const secret = process.env.JWT_SECRET
     if (!secret) return res.status(500).json({ error: 'Server misconfiguration: JWT_SECRET missing' })
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '7d' })
+    const token = jwt.sign({ userId: user.id, role: user.role }, secret, { expiresIn: '7d' })
 
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name } })
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Login failed' })
