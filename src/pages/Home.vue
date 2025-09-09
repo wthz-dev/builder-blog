@@ -90,6 +90,29 @@ function onPageChange(p: number) {
 </script>
 
 <template>
+  <section class="relative bg-cover bg-center h-[100vh]" style="background-image: url('/IMG_1521.jpg')">
+  <div class="absolute inset-0 bg-black/50"></div>
+  <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-6">
+    <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight">
+      WhiteBikeVibes
+    </h1>
+    <p class="mt-4 text-lg md:text-2xl max-w-2xl">
+      Where the road meets the code — Ducati rides, Vue.js hacks, and vibes worth sharing.
+    </p>
+    <div class="mt-6 flex gap-4">
+      <a href="https://www.tiktok.com/@whitez52"
+         class="px-6 py-3 bg-red-600 rounded-lg font-semibold hover:bg-red-700 transition">
+         ▶ Watch on TikTok
+      </a>
+      <a href="/tag/blog"
+         class="px-6 py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition">
+         ✍ Read the Blog
+      </a>
+    </div>
+  </div>
+</section>
+
+
   <section class="relative border-b border-ink-100 bg-gradient-to-br from-brand-50 to-white py-12">
     <div class="container">
       <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
