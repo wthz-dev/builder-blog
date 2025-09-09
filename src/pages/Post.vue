@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useSeo } from '@/composables/useSeo'
 import { usePosts } from '@/composables/usePosts'
@@ -43,6 +43,18 @@ onMounted(async () => {
       })),
     }
 
+    // SEO will be handled by the watchEffect below when post is set
+  } catch (e: any) {
+    error.value = e?.message || 'Failed to load post'
+  } finally {
+    loading.value = false
+  }
+})
+
+// Reactively update SEO when post data becomes available
+watchEffect(() => {
+  if (post.value) {
+    // console.log(post.value.title)
     useSeo({
       title: post.value.title,
       description: post.value.excerpt,
@@ -51,10 +63,11 @@ onMounted(async () => {
       authorName: post.value.author,
       url: location.pathname,
     })
-  } catch (e: any) {
-    error.value = e?.message || 'Failed to load post'
-  } finally {
-    loading.value = false
+  } else if (loading.value) {
+    // Optional: set a temporary loading title
+    useSeo({ title: 'Loading…' })
+  } else if (error.value) {
+    useSeo({ title: 'Post not found' })
   }
 })
 
