@@ -30,10 +30,8 @@ function doLogout() {
   >
     <div class="container flex h-16 items-center justify-between">
       <RouterLink to="/" class="group inline-flex items-center gap-2">
-        <div
-          class="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 shadow-soft"
-        ></div>
-        <span class="font-display text-lg font-bold text-ink-900">Torkait</span>
+        <img src="/ducati-Image.png" alt="Logo" class="h-8 w-8 rounded-lg object-cover shadow-soft" />
+        <span class="font-display text-lg font-bold text-ink-900">WhiteBikeVibes</span>
       </RouterLink>
 
       <nav class="hidden items-center gap-6 md:flex">
