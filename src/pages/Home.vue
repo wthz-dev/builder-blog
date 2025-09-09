@@ -100,11 +100,11 @@ function onPageChange(p: number) {
                 ? `Category: ${activeCategory}`
                 : activeTag
                   ? `Tag: ${activeTag}`
-                  : 'Latest Posts'
+                  : 'Latest Rides & Codes 🚀'
             }}
           </h1>
           <p class="mt-2 max-w-2xl text-ink-600">
-            Insights on Vue.js, TailwindCSS, Node.js, and building modern web apps.
+            Stories from the road and the repo — Vue.js, TailwindCSS, Node.js, and the vibes that keep the ride alive.
           </p>
         </div>
         <div class="flex items-center gap-3">
