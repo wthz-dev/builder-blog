@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import PostCard from '@/components/PostCard.vue'
 import Pagination from '@/components/Pagination.vue'
+import PostsGridSkeleton from '@/components/PostsGridSkeleton.vue'
 import type { BlogPost } from '@/data/mockPosts'
 import { useSeo } from '@/composables/useSeo'
 import { usePosts } from '@/composables/usePosts'
@@ -124,7 +125,9 @@ function onPageChange(p: number) {
     </div>
   </section>
 
-  <section class="container grid grid-cols-1 gap-8 py-10 md:grid-cols-12">
+  <PostsGridSkeleton v-if="loading" />
+
+  <section v-else class="container grid grid-cols-1 gap-8 py-10 md:grid-cols-12">
     <div class="md:col-span-8 lg:col-span-9">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <PostCard v-for="p in paged" :key="p.id" :post="p" />
