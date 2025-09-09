@@ -12,6 +12,7 @@ const Admin = () => import('@/pages/Admin.vue')
 const Profile = () => import('@/pages/Profile.vue')
 const AdminPosts = () => import('@/pages/admin/Posts.vue')
 const AdminEditPost = () => import('@/pages/admin/EditPost.vue')
+const AdminContacts = () => import('@/pages/admin/Contacts.vue')
 
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: Home, meta: { title: 'Home' } },
@@ -31,6 +32,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/admin/posts', name: 'admin-posts', component: AdminPosts, meta: { title: 'Posts' } },
   { path: '/admin/posts/new', name: 'admin-posts-new', component: AdminEditPost, meta: { title: 'New Post' } },
   { path: '/admin/posts/:id/edit', name: 'admin-posts-edit', component: AdminEditPost, meta: { title: 'Edit Post' } },
+  { path: '/admin/contacts', name: 'admin-contacts', component: AdminContacts, meta: { title: 'Contacts' } },
   { path: '/profile', name: 'profile', component: Profile, meta: { title: 'Profile' } },
 ]
 
@@ -40,6 +42,22 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+// Global route guard for admin-only routes
+router.beforeEach((to) => {
+  if (to.path.startsWith('/admin')) {
+    try {
+      const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('auth:user') : null
+      const u = raw ? (JSON.parse(raw) as { role?: 'ADMIN' | 'USER' }) : null
+      if (u?.role !== 'ADMIN') {
+        return { path: '/' }
+      }
+    } catch {
+      return { path: '/' }
+    }
+  }
+  return true
 })
 
 export default router

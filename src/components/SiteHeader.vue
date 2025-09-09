@@ -16,6 +16,7 @@ const nav = [
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
   { to: '/admin/posts', label: 'Admin', requiresAdmin: true },
+  { to: '/admin/contacts', label: 'Contacts', requiresAdmin: true },
 ]
 
 const isAdmin = computed(() => user.value?.role === 'ADMIN')
