@@ -7,6 +7,7 @@ import authRouter from './routes/auth'
 import commentsRouter from './routes/comments'
 import uploadsRouter from './routes/uploads'
 import contactsRouter from './routes/contacts'
+import metaRouter from './routes/meta'
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/comments', commentsRouter)
 app.use('/api/uploads', uploadsRouter)
 app.use('/api/contacts', contactsRouter)
+app.use('/meta', metaRouter)
 
 const PORT = Number(process.env.PORT ?? 3001)
 app.listen(PORT, () => {
