@@ -4,7 +4,8 @@ const TOKEN_KEY = 'auth:token'
 const USER_KEY = 'auth:user'
 
 const tokenRef = ref<string | null>(typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null)
-const userRef = ref<{ id: string; email: string; name: string } | null>(
+export type SessionUser = { id: string; email: string; name: string; role?: 'ADMIN' | 'USER' }
+const userRef = ref<SessionUser | null>(
   typeof localStorage !== 'undefined' ? JSON.parse(localStorage.getItem(USER_KEY) || 'null') : null,
 )
 
@@ -12,7 +13,7 @@ export function useSession() {
   const token = computed(() => tokenRef.value)
   const user = computed(() => userRef.value)
 
-  function setSession(nextToken: string | null, nextUser?: { id: string; email: string; name: string } | null) {
+  function setSession(nextToken: string | null, nextUser?: SessionUser | null) {
     tokenRef.value = nextToken
     if (nextToken) localStorage.setItem(TOKEN_KEY, nextToken)
     else localStorage.removeItem(TOKEN_KEY)
