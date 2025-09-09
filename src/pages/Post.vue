@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import { useSeo } from '@/composables/useSeo'
+import { useHead } from '@vueuse/head'
 import { usePosts } from '@/composables/usePosts'
 import { useComments } from '@/composables/useComments'
 import { useAuth } from '@/composables/useAuth'
@@ -20,6 +20,7 @@ const error = ref<string | null>(null)
 const comment = ref('')
 const sending = ref(false)
 const sendError = ref<string | null>(null)
+
 
 onMounted(async () => {
   try {
@@ -42,8 +43,6 @@ onMounted(async () => {
         authorName: cm.author?.name || 'Anonymous',
       })),
     }
-
-    // SEO will be handled by the watchEffect below when post is set
   } catch (e: any) {
     error.value = e?.message || 'Failed to load post'
   } finally {
@@ -51,23 +50,32 @@ onMounted(async () => {
   }
 })
 
-// Reactively update SEO when post data becomes available
-watchEffect(() => {
-  if (post.value) {
-    // console.log(post.value.title)
-    useSeo({
-      title: post.value.title,
-      description: post.value.excerpt,
-      type: 'article',
-      datePublished: post.value.publishedAt,
-      authorName: post.value.author,
-      url: location.pathname,
-    })
-  } else if (loading.value) {
-    // Optional: set a temporary loading title
-    useSeo({ title: 'Loading…' })
-  } else if (error.value) {
-    useSeo({ title: 'Post not found' })
+// ใช้ useHead (reactive) เพื่ออัปเดตหัวเว็บและ meta อัตโนมัติเมื่อ post เปลี่ยน
+useHead(() => {
+  const siteName = 'Torkait'
+  const baseTitle = 'Torkait — Personal Tech Blog'
+  const p = post.value
+  const title = p ? `${p.title} • ${siteName}` : loading.value ? 'Loading…' : error.value ? 'Post not found' : baseTitle
+  const desc = p?.excerpt || 'A modern personal blog built with Vue.js and TailwindCSS'
+  const url = typeof location !== 'undefined' ? location.href : ''
+  const image = p?.coverImageUrl
+  return {
+    title,
+    meta: [
+      { name: 'description', content: desc },
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: desc },
+      { property: 'og:type', content: 'article' },
+      { property: 'og:url', content: url },
+      ...(image ? [{ property: 'og:image', content: image }] : []),
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: desc },
+      ...(image ? [{ name: 'twitter:image', content: image }] : []),
+      { name: 'twitter:card', content: 'summary_large_image' },
+    ],
+    link: [
+      { rel: 'canonical', href: url },
+    ],
   }
 })
 
