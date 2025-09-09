@@ -5,6 +5,7 @@ import { useSeo } from '@/composables/useSeo'
 import { usePosts } from '@/composables/usePosts'
 import { useComments } from '@/composables/useComments'
 import { useAuth } from '@/composables/useAuth'
+import PostSkeleton from '@/components/PostSkeleton.vue'
 
 const route = useRoute()
 const slug = route.params.slug as string
@@ -91,6 +92,7 @@ async function submitComment() {
 }
 
 const hasUser = computed(() => !!user.value)
+
 </script>
 
 <template>
@@ -118,11 +120,11 @@ const hasUser = computed(() => !!user.value)
         </span>
       </div>
 
-      <div
-        class="mt-6 aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-ink-100 to-ink-50"
-      ></div>
       <div class="prose prose-ink max-w-none">
         <img v-if="post.coverImageUrl" :src="post.coverImageUrl" alt="Cover" class="mb-6 w-full rounded-lg object-cover" />
+        <div v-else
+        class="mt-6 aspect-[16/9] w-full rounded-xl bg-gradient-to-br from-ink-100 to-ink-50"
+      ></div>
         <div v-html="post.content"></div>
       </div>
 
@@ -172,6 +174,8 @@ const hasUser = computed(() => !!user.value)
       </section>
     </article>
   </section>
+
+  <PostSkeleton v-else-if="loading" />
 
   <section v-else class="container py-16 text-center">
     <h1 class="text-2xl font-semibold">{{ error || 'Post not found' }}</h1>
