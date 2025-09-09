@@ -7,6 +7,7 @@ const About = () => import('@/pages/About.vue')
 const Contact = () => import('@/pages/Contact.vue')
 const Login = () => import('@/pages/Login.vue')
 const Register = () => import('@/pages/Register.vue')
+const Privacy = () => import('@/pages/Privacy.vue')
 const Admin = () => import('@/pages/Admin.vue')
 const Profile = () => import('@/pages/Profile.vue')
 const AdminPosts = () => import('@/pages/admin/Posts.vue')
@@ -21,6 +22,7 @@ const routes: RouteRecordRaw[] = [
 
   { path: '/about', name: 'about', component: About, meta: { title: 'About' } },
   { path: '/contact', name: 'contact', component: Contact, meta: { title: 'Contact' } },
+  { path: '/privacy-policy', name: 'privacy', component: Privacy, meta: { title: 'Privacy Policy' } },
   { path: '/login', name: 'login', component: Login, meta: { title: 'Login' } },
   { path: '/register', name: 'register', component: Register, meta: { title: 'Register' } },
   // Legacy admin (kept for compatibility)
