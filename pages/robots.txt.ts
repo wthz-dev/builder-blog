@@ -1,0 +1,18 @@
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.siteUrl
+
+  const robotsTxt = `User-agent: *
+Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+
+# Sitemap
+Sitemap: ${baseUrl}/sitemap.xml`
+
+  setHeader(event, 'Content-Type', 'text/plain')
+  return robotsTxt
+})
