@@ -48,6 +48,38 @@
             </div>
           </div>
 
+          <!-- Categories Selector (vue-multiselect) -->
+          <div>
+            <label class="block text-sm font-medium text-ink-700 mb-2">หมวดหมู่</label>
+            <Multiselect
+              v-model="selectedCategories"
+              :options="categoryOptions"
+              :multiple="true"
+              :taggable="true"
+              tag-placeholder="กด Enter เพื่อเพิ่ม"
+              placeholder="เลือกหรือพิมพ์เพิ่ม..."
+              @tag="addCategory"
+            />
+            <!-- serialize for form submit -->
+            <input type="hidden" name="categoryNames" :value="selectedCategories.join(',')" />
+          </div>
+
+          <!-- Tags Selector (vue-multiselect) -->
+          <div>
+            <label class="block text-sm font-medium text-ink-700 mb-2">แท็ก</label>
+            <Multiselect
+              v-model="selectedTags"
+              :options="tagOptions"
+              :multiple="true"
+              :taggable="true"
+              tag-placeholder="กด Enter เพื่อเพิ่ม"
+              placeholder="เลือกหรือพิมพ์เพิ่ม..."
+              @tag="addTag"
+            />
+            <!-- serialize for form submit -->
+            <input type="hidden" name="tagNames" :value="selectedTags.join(',')" />
+          </div>
+
           <div class="flex items-center gap-2">
             <input id="publishNow" name="publishNow" type="checkbox" class="h-4 w-4" checked />
             <label for="publishNow" class="text-sm text-ink-700">เผยแพร่ทันที</label>
@@ -64,22 +96,22 @@
 </template>
 
 <script setup lang="ts">
-import { useSeoMeta } from 'nuxt/app'
-import { ref } from 'vue'
+import { useSeoMeta, useAsyncData } from 'nuxt/app'
+import { ref, watchEffect } from 'vue'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.css'
 import { useAuth } from '../../../composables/useAuth'
 
 definePageMeta({ middleware: 'auth' })
 
-const { user, checkAuth } = useAuth()
+const { user } = useAuth()
 
 useSeoMeta({
   title: 'สร้างโพสต์ใหม่ • WhiteBikeVibes',
   robots: 'noindex, nofollow'
 })
 
-if (!user.value) {
-  await checkAuth()
-}
+// ใช้ middleware 'auth' แทนการ await checkAuth() ที่ top-level
 
 const slug = ref('')
 function slugify(input: string) {
@@ -95,5 +127,32 @@ function onTitleInput(e: Event) {
   slug.value = slugify(v)
   const slugEl = document.getElementById('slug') as HTMLInputElement | null
   if (slugEl) slugEl.value = slug.value
+}
+
+// Load options for categories and tags (no top-level await)
+const categoryOptions = ref<string[]>([])
+const tagOptions = ref<string[]>([])
+const { data: categoriesData } = useAsyncData('admin-new-categories', () => $fetch<{ categories: Array<{ id: string; name: string }> }>('/api/categories'))
+const { data: tagsData } = useAsyncData('admin-new-tags', () => $fetch<{ tags: Array<{ id: string; name: string }> }>('/api/tags'))
+watchEffect(() => {
+  categoryOptions.value = (categoriesData.value?.categories || []).map(c => c.name)
+  tagOptions.value = (tagsData.value?.tags || []).map(t => t.name)
+})
+
+// Selected models
+const selectedCategories = ref<string[]>([])
+const selectedTags = ref<string[]>([])
+
+function addCategory(newTag: string) {
+  const v = newTag.trim()
+  if (!v) return
+  if (!categoryOptions.value.includes(v)) categoryOptions.value.push(v)
+  if (!selectedCategories.value.includes(v)) selectedCategories.value.push(v)
+}
+function addTag(newTag: string) {
+  const v = newTag.trim()
+  if (!v) return
+  if (!tagOptions.value.includes(v)) tagOptions.value.push(v)
+  if (!selectedTags.value.includes(v)) selectedTags.value.push(v)
 }
 </script>

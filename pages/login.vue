@@ -58,6 +58,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSeoMeta } from 'nuxt/app'
+import { useAuth } from '../composables/useAuth'
+
 useSeoMeta({
   title: 'เข้าสู่ระบบ • WhiteBikeVibes',
   ogTitle: 'เข้าสู่ระบบ • WhiteBikeVibes',
@@ -67,6 +72,7 @@ useSeoMeta({
 })
 
 const { login } = useAuth()
+const router = useRouter()
 
 const form = reactive({
   email: '',
@@ -82,7 +88,7 @@ async function handleLogin() {
   
   try {
     await login(form)
-    await navigateTo('/profile')
+    router.push('/profile')
   } catch (err: any) {
     error.value = err.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'
   } finally {

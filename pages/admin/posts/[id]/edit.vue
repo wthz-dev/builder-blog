@@ -67,6 +67,38 @@
               </div>
             </div>
 
+            <!-- Categories Selector (vue-multiselect) -->
+            <div>
+              <label class="block text-sm font-medium text-ink-700 mb-2">หมวดหมู่</label>
+              <Multiselect
+                v-model="selectedCategories"
+                :options="categoryOptions"
+                :multiple="true"
+                :taggable="true"
+                tag-placeholder="กด Enter เพื่อเพิ่ม"
+                placeholder="เลือกหรือพิมพ์เพิ่ม..."
+                @tag="addCategory"
+              />
+              <!-- serialize for form submit -->
+              <input type="hidden" name="categoryNames" :value="selectedCategories.join(',')" />
+            </div>
+
+            <!-- Tags Selector (vue-multiselect) -->
+            <div>
+              <label class="block text-sm font-medium text-ink-700 mb-2">แท็ก</label>
+              <Multiselect
+                v-model="selectedTags"
+                :options="tagOptions"
+                :multiple="true"
+                :taggable="true"
+                tag-placeholder="กด Enter เพื่อเพิ่ม"
+                placeholder="เลือกหรือพิมพ์เพิ่ม..."
+                @tag="addTag"
+              />
+              <!-- serialize for form submit -->
+              <input type="hidden" name="tagNames" :value="selectedTags.join(',')" />
+            </div>
+
             <div class="flex items-center gap-2">
               <input id="publishNow" name="publishNow" type="checkbox" class="h-4 w-4" :checked="!!post.publishedAt" />
               <label for="publishNow" class="text-sm text-ink-700">เผยแพร่</label>
@@ -84,15 +116,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useSeoMeta, useRequestHeaders } from 'nuxt/app'
+import { ref, computed, watchEffect } from 'vue'
+import { useSeoMeta, useRequestHeaders, useAsyncData } from 'nuxt/app'
 import { definePageMeta } from '#imports'
 import { useRoute } from 'vue-router'
 import { useAuth } from '../../../../composables/useAuth'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.css'
 
 definePageMeta({ middleware: 'auth' })
 
-const { user, checkAuth } = useAuth()
+const { user } = useAuth()
 const route = useRoute()
 const id = route.params.id as string
 const showSuccess = ref(route.query.updated === '1')
@@ -102,21 +136,53 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-if (!user.value) {
-  await checkAuth()
-}
+// ใช้ middleware 'auth' แทนการ await checkAuth() ที่ top-level
 
 const pending = ref(true)
 const error = ref<string | null>(null)
 const post = ref<any>(null)
 
-try {
+// Options + selections for categories/tags
+const categoryOptions = ref<string[]>([])
+const tagOptions = ref<string[]>([])
+const selectedCategories = ref<string[]>([])
+const selectedTags = ref<string[]>([])
+
+const { data, error: err, pending: p } = await useAsyncData(`admin-post-${id}`, async () => {
   const headers = process.server ? (useRequestHeaders(['cookie']) as Record<string, string>) : undefined
-  const res = await $fetch<{ post: any }>(`/api/admin/posts/${id}`, { headers })
-  post.value = res.post
-} catch (e: any) {
-  error.value = e?.data?.message || 'โหลดโพสต์ไม่สำเร็จ'
-} finally {
-  pending.value = false
+  const [postRes, cats, tags] = await Promise.all([
+    $fetch<{ post: any }>(`/api/admin/posts/${id}`, { headers }),
+    $fetch<{ categories: Array<{ id: string; name: string }> }>(`/api/categories`),
+    $fetch<{ tags: Array<{ id: string; name: string }> }>(`/api/tags`)
+  ])
+  return { post: postRes.post, cats, tags }
+})
+
+watchEffect(() => {
+  pending.value = !!p.value
+  if (err.value) {
+    error.value = (err.value as any)?.data?.message || 'โหลดโพสต์ไม่สำเร็จ'
+    return
+  }
+  const v = data.value
+  if (!v) return
+  post.value = v.post
+  categoryOptions.value = (v.cats?.categories || []).map((c: any) => c.name)
+  tagOptions.value = (v.tags?.tags || []).map((t: any) => t.name)
+  selectedCategories.value = (post.value?.categories || []).map((c: any) => c.name || c.category?.name).filter(Boolean)
+  selectedTags.value = (post.value?.tags || []).map((t: any) => t.name || t.tag?.name).filter(Boolean)
+})
+
+function addCategory(newTag: string) {
+  const v = newTag.trim()
+  if (!v) return
+  if (!categoryOptions.value.includes(v)) categoryOptions.value.push(v)
+  if (!selectedCategories.value.includes(v)) selectedCategories.value.push(v)
+}
+function addTag(newTag: string) {
+  const v = newTag.trim()
+  if (!v) return
+  if (!tagOptions.value.includes(v)) tagOptions.value.push(v)
+  if (!selectedTags.value.includes(v)) selectedTags.value.push(v)
 }
 </script>

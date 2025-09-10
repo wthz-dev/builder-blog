@@ -35,6 +35,15 @@ export default defineEventHandler(async (event) => {
   const content = String(form.get('content') || '').trim()
   let coverImageUrl = String(form.get('coverImageUrl') || '') || null
   const publishNow = form.get('publishNow') !== null
+  // New: tags & categories from form (comma-separated names)
+  const categoryNamesRaw = String(form.get('categoryNames') || '').trim()
+  const tagNamesRaw = String(form.get('tagNames') || '').trim()
+  const categoryNames = categoryNamesRaw
+    ? categoryNamesRaw.split(',').map(s => s.trim()).filter(Boolean)
+    : []
+  const tagNames = tagNamesRaw
+    ? tagNamesRaw.split(',').map(s => s.trim()).filter(Boolean)
+    : []
 
   if (!title || !slug) {
     throw createError({ statusCode: 400, statusMessage: 'Title and slug are required' })
@@ -73,17 +82,54 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 4) Create post
-  const post = await prisma.post.create({
-    data: {
-      title,
-      slug,
-      excerpt: excerpt || null,
-      content: content || null,
-      coverImageUrl,
-      authorId: user.id,
-      publishedAt: publishNow ? new Date() : null,
-    },
+  // 4) Create post + relations within a transaction
+  const post = await prisma.$transaction(async (tx) => {
+    const created = await tx.post.create({
+      data: {
+        title,
+        slug,
+        excerpt: excerpt || null,
+        content: content || null,
+        coverImageUrl,
+        authorId: user.id,
+        publishedAt: publishNow ? new Date() : null,
+      },
+    })
+
+    // Upsert Categories and Tags by name, then create relations
+    if (categoryNames.length > 0) {
+      const categories = await Promise.all(
+        categoryNames.map((name) =>
+          tx.category.upsert({
+            where: { name },
+            update: {},
+            create: { name }
+          })
+        )
+      )
+      await tx.postCategory.createMany({
+        data: categories.map((c) => ({ postId: created.id, categoryId: c.id })),
+        skipDuplicates: true
+      })
+    }
+
+    if (tagNames.length > 0) {
+      const tags = await Promise.all(
+        tagNames.map((name) =>
+          tx.tag.upsert({
+            where: { name },
+            update: {},
+            create: { name }
+          })
+        )
+      )
+      await tx.postTag.createMany({
+        data: tags.map((t) => ({ postId: created.id, tagId: t.id })),
+        skipDuplicates: true
+      })
+    }
+
+    return created
   })
 
   // 5) Redirect to the new post page (fallback to home)
