@@ -24,6 +24,12 @@ export default defineEventHandler(async (event) => {
         content: true,
         coverImageUrl: true,
         publishedAt: true,
+        categories: {
+          select: { category: { select: { name: true } } }
+        },
+        tags: {
+          select: { tag: { select: { name: true } } }
+        }
       },
     })
 

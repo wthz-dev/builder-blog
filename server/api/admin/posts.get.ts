@@ -30,7 +30,13 @@ export default defineEventHandler(async (event) => {
       slug: true,
       title: true,
       publishedAt: true,
-      author: { select: { id: true, name: true } }
+      author: { select: { id: true, name: true } },
+      categories: {
+        select: { category: { select: { name: true } } }
+      },
+      tags: {
+        select: { tag: { select: { name: true } } }
+      }
     }
   })
 

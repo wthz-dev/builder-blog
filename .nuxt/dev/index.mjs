@@ -1145,7 +1145,22 @@ const plugins = [
 _5v03cVl4y3HiJQc9bt5nfi1lJYCkyC4pRUbeq4rkvI
 ];
 
-const assets = {};
+const assets = {
+  "/index.mjs": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": "\"1a59e-yN1d0NKii4+Xn7yuNechYqZNDmA\"",
+    "mtime": "2025-09-10T09:37:27.948Z",
+    "size": 107934,
+    "path": "index.mjs"
+  },
+  "/index.mjs.map": {
+    "type": "application/json",
+    "etag": "\"60605-vohca2o9eIoR6KD5munVZYBWaaI\"",
+    "mtime": "2025-09-10T09:37:27.948Z",
+    "size": 394757,
+    "path": "index.mjs.map"
+  }
+};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -1972,7 +1987,13 @@ const posts_get = defineEventHandler(async (event) => {
       slug: true,
       title: true,
       publishedAt: true,
-      author: { select: { id: true, name: true } }
+      author: { select: { id: true, name: true } },
+      categories: {
+        select: { category: { select: { name: true } } }
+      },
+      tags: {
+        select: { tag: { select: { name: true } } }
+      }
     }
   });
   return { posts };
@@ -2010,6 +2031,10 @@ const posts_post = defineEventHandler(async (event) => {
   const content = String(form.get("content") || "").trim();
   let coverImageUrl = String(form.get("coverImageUrl") || "") || null;
   const publishNow = form.get("publishNow") !== null;
+  const categoryNamesRaw = String(form.get("categoryNames") || "").trim();
+  const tagNamesRaw = String(form.get("tagNames") || "").trim();
+  const categoryNames = categoryNamesRaw ? categoryNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const tagNames = tagNamesRaw ? tagNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
   if (!title || !slug) {
     throw createError({ statusCode: 400, statusMessage: "Title and slug are required" });
   }
@@ -2042,16 +2067,49 @@ const posts_post = defineEventHandler(async (event) => {
       throw createError({ statusCode: 500, statusMessage: "Image upload failed" });
     }
   }
-  const post = await prisma.post.create({
-    data: {
-      title,
-      slug,
-      excerpt: excerpt || null,
-      content: content || null,
-      coverImageUrl,
-      authorId: user.id,
-      publishedAt: publishNow ? /* @__PURE__ */ new Date() : null
+  const post = await prisma.$transaction(async (tx) => {
+    const created = await tx.post.create({
+      data: {
+        title,
+        slug,
+        excerpt: excerpt || null,
+        content: content || null,
+        coverImageUrl,
+        authorId: user.id,
+        publishedAt: publishNow ? /* @__PURE__ */ new Date() : null
+      }
+    });
+    if (categoryNames.length > 0) {
+      const categories = await Promise.all(
+        categoryNames.map(
+          (name) => tx.category.upsert({
+            where: { name },
+            update: {},
+            create: { name }
+          })
+        )
+      );
+      await tx.postCategory.createMany({
+        data: categories.map((c) => ({ postId: created.id, categoryId: c.id })),
+        skipDuplicates: true
+      });
     }
+    if (tagNames.length > 0) {
+      const tags = await Promise.all(
+        tagNames.map(
+          (name) => tx.tag.upsert({
+            where: { name },
+            update: {},
+            create: { name }
+          })
+        )
+      );
+      await tx.postTag.createMany({
+        data: tags.map((t) => ({ postId: created.id, tagId: t.id })),
+        skipDuplicates: true
+      });
+    }
+    return created;
   });
   try {
     return await sendRedirect(event, `/post/${post.slug}`, 302);
@@ -2085,7 +2143,13 @@ const _id__get = defineEventHandler(async (event) => {
         excerpt: true,
         content: true,
         coverImageUrl: true,
-        publishedAt: true
+        publishedAt: true,
+        categories: {
+          select: { category: { select: { name: true } } }
+        },
+        tags: {
+          select: { tag: { select: { name: true } } }
+        }
       }
     });
     if (!post) throw createError({ statusCode: 404, statusMessage: "Post not found" });
@@ -2147,6 +2211,10 @@ const update_post = defineEventHandler(async (event) => {
   const content = String(form.get("content") || "").trim();
   let coverImageUrl = String(form.get("coverImageUrl") || "") || void 0;
   const publishNow = form.get("publishNow") !== null;
+  const categoryNamesRaw = String(form.get("categoryNames") || "").trim();
+  const tagNamesRaw = String(form.get("tagNames") || "").trim();
+  const categoryNames = categoryNamesRaw ? categoryNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const tagNames = tagNamesRaw ? tagNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
   if (!title || !slug) {
     throw createError({ statusCode: 400, statusMessage: "Title and slug are required" });
   }
@@ -2189,7 +2257,34 @@ const update_post = defineEventHandler(async (event) => {
   if (typeof coverImageUrl !== "undefined" && coverImageUrl !== "") {
     data.coverImageUrl = coverImageUrl;
   }
-  const updated = await prisma.post.update({ where: { id }, data });
+  const updated = await prisma.$transaction(async (tx) => {
+    const p = await tx.post.update({ where: { id }, data });
+    await tx.postCategory.deleteMany({ where: { postId: id } });
+    if (categoryNames.length > 0) {
+      const cats = await Promise.all(
+        categoryNames.map(
+          (name) => tx.category.upsert({ where: { name }, update: {}, create: { name } })
+        )
+      );
+      await tx.postCategory.createMany({
+        data: cats.map((c) => ({ postId: id, categoryId: c.id })),
+        skipDuplicates: true
+      });
+    }
+    await tx.postTag.deleteMany({ where: { postId: id } });
+    if (tagNames.length > 0) {
+      const ts = await Promise.all(
+        tagNames.map(
+          (name) => tx.tag.upsert({ where: { name }, update: {}, create: { name } })
+        )
+      );
+      await tx.postTag.createMany({
+        data: ts.map((t) => ({ postId: id, tagId: t.id })),
+        skipDuplicates: true
+      });
+    }
+    return p;
+  });
   try {
     return await sendRedirect(event, `/admin/posts/${updated.id}/edit?updated=1`, 302);
   } catch {
