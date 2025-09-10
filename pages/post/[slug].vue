@@ -149,6 +149,18 @@ const { data: post, pending, error } = await useFetch(`/api/posts/${slug}`, {
   key: `post-${slug}`
 })
 
+// Define canonicalUrl and absoluteCoverImage BEFORE using in useSeoMeta/useHead
+const canonicalUrl = computed(() => {
+  const siteUrl = (runtime.public as any)?.siteUrl || ''
+  return `${siteUrl}/post/${encodeURIComponent(slug)}`
+})
+const absoluteCoverImage = computed(() => {
+  const siteUrl = (runtime.public as any)?.siteUrl || ''
+  const url = post.value?.coverImageUrl || '/og-image.jpg'
+  if (!url) return ''
+  return /^https?:\/\//.test(url) ? url : `${siteUrl}${url}`
+})
+
 // SEO Meta - Dynamic based on post data
 useSeoMeta({
   title: () => post.value ? `${post.value.title} • WhiteBikeVibes` : 'กำลังโหลด...',
@@ -235,16 +247,6 @@ function formatDate(dateString: string) {
 }
 
 // Share helpers
-const canonicalUrl = computed(() => {
-  const siteUrl = (runtime.public as any)?.siteUrl || ''
-  return `${siteUrl}/post/${encodeURIComponent(slug)}`
-})
-const absoluteCoverImage = computed(() => {
-  const siteUrl = (runtime.public as any)?.siteUrl || ''
-  const url = post.value?.coverImageUrl || '/og-image.jpg'
-  if (!url) return ''
-  return /^https?:\/\//.test(url) ? url : `${siteUrl}${url}`
-})
 const shareTitle = computed(() => post.value?.title || 'WhiteBikeVibes')
 const shareText = computed(() => post.value?.excerpt || post.value?.title || 'WhiteBikeVibes')
 
