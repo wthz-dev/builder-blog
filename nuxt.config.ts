@@ -11,6 +11,18 @@ export default defineNuxtConfig({
   // Global styles
   css: ['@/assets/css/main.css'],
 
+  // Runtime configuration
+  runtimeConfig: {
+    // Server-only secrets
+    jwtSecret: process.env.JWT_SECRET,
+    databaseUrl: process.env.DATABASE_URL,
+    // Public runtime config available on client
+    public: {
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api'
+    }
+  },
+
   modules: [
     // Minimal set needed for our UI
     '@nuxt/image',
