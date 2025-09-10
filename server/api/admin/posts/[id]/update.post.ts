@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
   const content = String(form.get('content') || '').trim()
   let coverImageUrl = String(form.get('coverImageUrl') || '') || undefined
   const publishNow = form.get('publishNow') !== null
+  const removeCover = form.get('removeCover') !== null
   // New: tags & categories
   const categoryNamesRaw = String(form.get('categoryNames') || '').trim()
   const tagNamesRaw = String(form.get('tagNames') || '').trim()
@@ -46,6 +47,9 @@ export default defineEventHandler(async (event) => {
   if (!title || !slug) {
     throw createError({ statusCode: 400, statusMessage: 'Title and slug are required' })
   }
+
+  // Load current post to know existing cover (for potential deletion)
+  const current = await prisma.post.findUnique({ where: { id }, select: { coverImageUrl: true } })
 
   // Optional Cloudinary upload if file provided
   const file = form.get('coverImage') as File | null
@@ -80,7 +84,38 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Build update data (do not overwrite coverImageUrl if undefined and no URL given)
+  // If user asked to remove old cover (or uploaded a new one), attempt to delete old Cloudinary image
+  async function tryDeleteOldCloudinary(url?: string) {
+    if (!url) return
+    try {
+      const cloudName = config.cloudinaryCloudName as string | undefined
+      const apiKey = config.cloudinaryApiKey as string | undefined
+      const apiSecret = config.cloudinaryApiSecret as string | undefined
+      if (!cloudName || !apiKey || !apiSecret) return
+      // Only proceed if URL seems to be Cloudinary
+      if (!/res\.cloudinary\.com\//.test(url)) return
+      // Extract public_id from URL
+      const m = url.match(/res\.cloudinary\.com\/[^/]+\/image\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/)
+      const publicId = m?.[1]
+      if (!publicId) return
+      const timestamp = Math.floor(Date.now() / 1000)
+      const signatureBase = `public_id=${publicId}&timestamp=${timestamp}`
+      const signature = createHash('sha1').update(signatureBase + apiSecret).digest('hex')
+      const body = new FormData()
+      body.append('public_id', publicId)
+      body.append('api_key', apiKey)
+      body.append('timestamp', String(timestamp))
+      body.append('signature', signature)
+      await $fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
+        method: 'POST',
+        body
+      })
+    } catch (e) {
+      console.warn('Cloudinary destroy failed (ignored):', e)
+    }
+  }
+
+  // Build update data (do not overwrite coverImageUrl unless needed)
   const data: any = {
     title,
     slug,
@@ -88,7 +123,21 @@ export default defineEventHandler(async (event) => {
     content: content || null,
     publishedAt: publishNow ? new Date() : null,
   }
-  if (typeof coverImageUrl !== 'undefined' && coverImageUrl !== '') {
+
+  // Decide how to set coverImageUrl based on removeCover and provided/new URL
+  if (removeCover) {
+    // Delete old (if any) and set to new URL if provided, else null
+    await tryDeleteOldCloudinary(current?.coverImageUrl || undefined)
+    if (typeof coverImageUrl === 'string' && coverImageUrl !== '') {
+      data.coverImageUrl = coverImageUrl
+    } else {
+      data.coverImageUrl = null
+    }
+  } else if (typeof coverImageUrl === 'string' && coverImageUrl !== '') {
+    // Replacing without explicit remove; delete old if different
+    if (current?.coverImageUrl && current.coverImageUrl !== coverImageUrl) {
+      await tryDeleteOldCloudinary(current.coverImageUrl)
+    }
     data.coverImageUrl = coverImageUrl
   }
 

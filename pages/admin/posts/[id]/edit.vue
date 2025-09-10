@@ -54,7 +54,17 @@
               <textarea name="content" rows="10" class="w-full px-3 py-2 border border-ink-200 rounded-lg">{{ post.content }}</textarea>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Cover preview -->
+            <div v-if="post.coverImageUrl && !removeCover" class="mb-4">
+              <label class="block text-sm font-medium text-ink-700 mb-2">รูปปกปัจจุบัน</label>
+              <img :src="post.coverImageUrl" alt="cover" class="w-full max-w-md rounded-lg border border-ink-100" />
+              <div class="mt-2 flex gap-2">
+                <a :href="post.coverImageUrl" target="_blank" class="px-3 py-1 text-xs border border-ink-200 rounded-lg">เปิดรูป</a>
+                <button class="px-3 py-1 text-xs border border-red-200 text-red-700 rounded-lg hover:bg-red-50" @click.prevent="removeCover = true">ลบรูปนี้</button>
+              </div>
+            </div>
+
+            <div :class="['grid grid-cols-1 md:grid-cols-2 gap-4', removeCover ? 'opacity-70' : '']">
               <div>
                 <label class="block text-sm font-medium text-ink-700 mb-2">อัปโหลดรูปปกใหม่ (ถ้าต้องการเปลี่ยน)</label>
                 <input name="coverImage" type="file" accept="image/*" class="w-full px-3 py-2 border border-ink-200 rounded-lg bg-white" />
@@ -65,6 +75,10 @@
                 <input name="coverImageUrl" type="url" class="w-full px-3 py-2 border border-ink-200 rounded-lg" :placeholder="post.coverImageUrl || 'https://...'" />
                 <p class="text-xs text-ink-500 mt-1">ถ้าไม่กรอก = คง URL เดิม</p>
               </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <input id="removeCover" v-model="removeCover" name="removeCover" type="checkbox" class="h-4 w-4" />
+              <label for="removeCover" class="text-sm text-ink-700">ลบรูปปกเดิม</label>
             </div>
 
             <!-- Categories Selector (vue-multiselect) -->
@@ -147,6 +161,7 @@ const categoryOptions = ref<string[]>([])
 const tagOptions = ref<string[]>([])
 const selectedCategories = ref<string[]>([])
 const selectedTags = ref<string[]>([])
+const removeCover = ref(false)
 
 const { data, error: err, pending: p } = await useAsyncData(`admin-post-${id}`, async () => {
   const headers = process.server ? (useRequestHeaders(['cookie']) as Record<string, string>) : undefined

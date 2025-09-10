@@ -155,14 +155,19 @@ useSeoMeta({
   ogTitle: () => post.value ? `${post.value.title} • WhiteBikeVibes` : 'กำลังโหลด...',
   description: () => post.value?.excerpt || 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
   ogDescription: () => post.value?.excerpt || 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
-  ogImage: () => post.value?.coverImageUrl || '/og-image.jpg',
+  ogUrl: () => canonicalUrl.value,
+  ogImage: () => absoluteCoverImage.value,
   ogType: 'article',
   articlePublishedTime: () => post.value?.publishedAt,
   twitterCard: 'summary_large_image',
+  twitterImage: () => absoluteCoverImage.value,
 })
 
 // Structured data for SEO (JSON-LD)
 useHead({
+  link: [
+    { rel: 'canonical', href: canonicalUrl.value }
+  ],
   script: [
     {
       type: 'application/ld+json',
@@ -172,7 +177,7 @@ useHead({
             '@type': 'BlogPosting',
             headline: post.value.title,
             description: post.value.excerpt,
-            image: post.value.coverImageUrl,
+            image: absoluteCoverImage.value,
             datePublished: post.value.publishedAt,
             dateModified: post.value.publishedAt,
             author: {
@@ -182,7 +187,7 @@ useHead({
             publisher: {
               '@type': 'Organization',
               name: 'WhiteBikeVibes',
-              logo: { '@type': 'ImageObject', url: '/og-image.jpg' }
+              logo: { '@type': 'ImageObject', url: (runtime.public as any)?.siteUrl ? `${(runtime.public as any).siteUrl}/og-image.jpg` : '/og-image.jpg' }
             }
           })
         : ''
@@ -233,6 +238,12 @@ function formatDate(dateString: string) {
 const canonicalUrl = computed(() => {
   const siteUrl = (runtime.public as any)?.siteUrl || ''
   return `${siteUrl}/post/${encodeURIComponent(slug)}`
+})
+const absoluteCoverImage = computed(() => {
+  const siteUrl = (runtime.public as any)?.siteUrl || ''
+  const url = post.value?.coverImageUrl || '/og-image.jpg'
+  if (!url) return ''
+  return /^https?:\/\//.test(url) ? url : `${siteUrl}${url}`
 })
 const shareTitle = computed(() => post.value?.title || 'WhiteBikeVibes')
 const shareText = computed(() => post.value?.excerpt || post.value?.title || 'WhiteBikeVibes')
