@@ -1,51 +1,12 @@
-import { prisma } from '~/lib/prisma'
+// NOTE:
+// This file previously generated sitemap via Prisma under `pages/`, which caused
+// Prisma to be bundled into the client build and failed on Vercel.
+// Sitemap generation is now handled exclusively by `server/routes/sitemap.xml.ts`.
+// We keep this stub to avoid accidental Prisma imports at pages-level.
 
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const baseUrl = config.public.siteUrl
-
-  try {
-    // Get all published posts
-    const posts = await prisma.post.findMany({
-      select: {
-        slug: true,
-        publishedAt: true
-      },
-      orderBy: { publishedAt: 'desc' }
-    })
-
-    // Static pages
-    const staticPages = [
-      { url: '/', lastmod: new Date().toISOString(), priority: '1.0' },
-      { url: '/about', lastmod: new Date().toISOString(), priority: '0.8' },
-      { url: '/contact', lastmod: new Date().toISOString(), priority: '0.7' }
-    ]
-
-    // Dynamic post pages
-    const postPages = posts.map(post => ({
-      url: `/post/${post.slug}`,
-      lastmod: post.publishedAt?.toISOString() || new Date().toISOString(),
-      priority: '0.9'
-    }))
-
-    const allPages = [...staticPages, ...postPages]
-
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allPages.map(page => `  <url>
-    <loc>${baseUrl}${page.url}</loc>
-    <lastmod>${page.lastmod}</lastmod>
-    <priority>${page.priority}</priority>
-  </url>`).join('\n')}
-</urlset>`
-
-    setHeader(event, 'Content-Type', 'application/xml')
-    return sitemap
-  } catch (error) {
-    console.error('Sitemap generation error:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to generate sitemap'
-    })
-  }
+export default defineEventHandler((event) => {
+  // Delegate to server route (same pathname) to serve sitemap.
+  // Returning empty string here ensures no Prisma is loaded in pages/ during build.
+  setHeader(event, 'Content-Type', 'application/xml')
+  return ''
 })
