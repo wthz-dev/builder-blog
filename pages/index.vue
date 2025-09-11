@@ -64,6 +64,21 @@
     </div>
   </section>
 
+  <!-- CTA Section -->
+  <section class="container mx-auto px-4 pb-16 pt-6">
+    <div class="rounded-2xl border border-ink-100 p-8 bg-gradient-to-br from-ink-50 to-white flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <h3 class="text-2xl font-bold text-ink-900">ติดตาม WhiteBikeVibes</h3>
+        <p class="text-ink-600 mt-1">อย่าพลาดโพสต์ใหม่ๆ ทั้งสายขี่และสายโค้ด</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="https://www.tiktok.com/@whitez52" target="_blank" class="px-4 py-2 rounded-full bg-black text-white text-sm font-semibold">TikTok</a>
+        <a :href="`https://twitter.com/intent/follow?screen_name=whitez52`" target="_blank" class="px-4 py-2 rounded-full border border-ink-200 text-sm">X</a>
+        <a href="https://line.me/ti/p/~whitez52" target="_blank" class="px-4 py-2 rounded-full border border-ink-200 text-sm">LINE</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Categories & Tags + AdSense -->
   <section class="container mx-auto px-4 py-10">
     <AdsenseBanner />
@@ -102,8 +117,33 @@
           </NuxtLink>
         </div>
       </div>
+
+      <!-- Close grid container -->
     </div>
-  </section>
+
+      <!-- Featured Post -->
+      <div v-if="featuredPost" class="mt-8">
+        <h2 class="text-xl font-semibold text-ink-900 mb-4">แนะนำสำหรับคุณ</h2>
+        <NuxtLink :to="`/post/${featuredPost.slug}`" class="block rounded-2xl overflow-hidden border border-ink-100 bg-white hover:shadow-soft transition">
+          <div class="relative aspect-[16/7] bg-ink-50">
+            <NuxtImg v-if="featuredPost.coverImageUrl" :src="featuredPost.coverImageUrl" :alt="featuredPost.title" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <div class="flex flex-wrap gap-2 mb-2">
+                <span v-for="c in featuredPost.categories" :key="c.name" class="bg-white/20 backdrop-blur px-2 py-0.5 rounded text-xs">{{ c.name }}</span>
+              </div>
+              <h3 class="text-2xl md:text-3xl font-bold leading-snug">{{ featuredPost.title }}</h3>
+              <p class="mt-2 text-sm text-white/90 line-clamp-2">{{ featuredPost.excerpt }}</p>
+              <div class="mt-3 text-xs text-white/80 flex items-center gap-3">
+                <span>{{ formatDate(featuredPost.publishedAt) }}</span>
+                <span>•</span>
+                <span>{{ featuredPost.author?.name }}</span>
+              </div>
+            </div>
+          </div>
+        </NuxtLink>
+      </div>
+    </section>
 
     <!-- Posts Section -->
     <section class="container mx-auto px-4 py-16">
@@ -116,10 +156,10 @@
         <p class="text-ink-600">{{ error }}</p>
       </div>
       
-      <div v-else-if="posts && posts.length > 0">
+      <div v-else-if="filteredPosts && filteredPosts.length > 0">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <article
-            v-for="post in posts"
+            v-for="post in filteredPosts"
             :key="post.id"
             class="bg-white rounded-xl border border-ink-100 overflow-hidden hover:shadow-soft transition-shadow duration-300"
           >
@@ -163,12 +203,7 @@
         </div>
         
         <!-- Pagination -->
-        <Pagination
-          v-if="totalPages > 1"
-          :current-page="currentPage"
-          :total-pages="totalPages"
-          class="mt-12"
-        />
+        <Pagination v-if="totalPages > 1" :current-page="currentPage" :total-pages="totalPages" class="mt-12" />
       </div>
       
       <div v-else class="text-center py-16">
@@ -236,6 +271,36 @@ function formatDate(dateString: string) {
     day: 'numeric'
   })
 }
+
+// Quick filters state
+const searchTerm = ref('')
+const filterCategory = ref('')
+const filterTag = ref('')
+
+// Featured and filtered posts
+const featuredPost = computed(() => {
+  // From original posts list (already server-sorted by publishedAt desc)
+  const list = posts.value || []
+  if (list.length === 0) return null
+  // If filters applied, pick first that matches search/category/tag
+  const firstMatch = list.find(p => {
+    const passSearch = !searchTerm.value || (p.title || '').toLowerCase().includes(searchTerm.value.toLowerCase())
+    const passCat = !filterCategory.value || (p.categories || []).some((c:any) => c?.name === filterCategory.value)
+    const passTag = !filterTag.value || (p.tags || []).some((t:any) => t?.name === filterTag.value)
+    return passSearch && passCat && passTag
+  })
+  return firstMatch || list[0]
+})
+
+const filteredPosts = computed(() => {
+  const list = (posts.value || []).filter(p => p.id !== featuredPost.value?.id)
+  return list.filter((p:any) => {
+    const passSearch = !searchTerm.value || (p.title || '').toLowerCase().includes(searchTerm.value.toLowerCase())
+    const passCat = !filterCategory.value || (p.categories || []).some((c:any) => c?.name === filterCategory.value)
+    const passTag = !filterTag.value || (p.tags || []).some((t:any) => t?.name === filterTag.value)
+    return passSearch && passCat && passTag
+  })
+})
 </script>
 
 <style scoped>
