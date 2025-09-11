@@ -77,7 +77,10 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-ink-100">
-              <tr v-for="p in filteredPosts" :key="p.id">
+              <template v-if="pending">
+                <TableRowSkeleton v-for="i in 8" :key="`s-${i}`" />
+              </template>
+              <tr v-else v-for="p in filteredPosts" :key="p.id">
                 <td class="px-4 py-3 text-ink-900">{{ p.title }}</td>
                 <td class="px-4 py-3 text-ink-700">{{ formatDate(p.publishedAt) }}</td>
                 <td class="px-4 py-3 text-ink-700">{{ p.author?.name }}</td>

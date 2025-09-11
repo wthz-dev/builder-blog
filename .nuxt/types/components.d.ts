@@ -15,9 +15,13 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 
 interface _GlobalComponents {
       'AdsenseBanner': typeof import("../../components/AdsenseBanner.vue")['default']
+    'ChipSkeleton': typeof import("../../components/ChipSkeleton.vue")['default']
+    'CommentSkeleton': typeof import("../../components/CommentSkeleton.vue")['default']
     'NavBar': typeof import("../../components/NavBar.vue")['default']
+    'PageBlocker': typeof import("../../components/PageBlocker.vue")['default']
     'Pagination': typeof import("../../components/Pagination.vue")['default']
     'PostSkeleton': typeof import("../../components/PostSkeleton.vue")['default']
+    'TableRowSkeleton': typeof import("../../components/TableRowSkeleton.vue")['default']
     'NuxtWelcome': typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']
     'NuxtLayout': typeof import("../../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
     'NuxtErrorBoundary': typeof import("../../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -43,9 +47,13 @@ interface _GlobalComponents {
     'NuxtIsland': typeof import("../../node_modules/nuxt/dist/app/components/nuxt-island")['default']
     'NuxtRouteAnnouncer': typeof import("../../node_modules/nuxt/dist/app/components/server-placeholder")['default']
       'LazyAdsenseBanner': LazyComponent<typeof import("../../components/AdsenseBanner.vue")['default']>
+    'LazyChipSkeleton': LazyComponent<typeof import("../../components/ChipSkeleton.vue")['default']>
+    'LazyCommentSkeleton': LazyComponent<typeof import("../../components/CommentSkeleton.vue")['default']>
     'LazyNavBar': LazyComponent<typeof import("../../components/NavBar.vue")['default']>
+    'LazyPageBlocker': LazyComponent<typeof import("../../components/PageBlocker.vue")['default']>
     'LazyPagination': LazyComponent<typeof import("../../components/Pagination.vue")['default']>
     'LazyPostSkeleton': LazyComponent<typeof import("../../components/PostSkeleton.vue")['default']>
+    'LazyTableRowSkeleton': LazyComponent<typeof import("../../components/TableRowSkeleton.vue")['default']>
     'LazyNuxtWelcome': LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
     'LazyNuxtLayout': LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
     'LazyNuxtErrorBoundary': LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>

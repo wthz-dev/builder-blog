@@ -87,7 +87,9 @@
       <!-- Categories -->
       <div class="lg:col-span-2 bg-white border border-ink-100 rounded-xl p-6">
         <h2 class="text-xl font-semibold text-ink-900 mb-4">หมวดหมู่ (Categories)</h2>
-        <div v-if="catsPending" class="text-ink-600">กำลังโหลดหมวดหมู่...</div>
+        <div v-if="catsPending" class="flex flex-wrap gap-3">
+          <ChipSkeleton v-for="i in 8" :key="`cat-s-${i}`" />
+        </div>
         <div v-else class="flex flex-wrap gap-3">
           <NuxtLink
             v-for="c in categories"
@@ -104,7 +106,9 @@
       <!-- Popular Tags -->
       <div class="bg-white border border-ink-100 rounded-xl p-6">
         <h2 class="text-xl font-semibold text-ink-900 mb-4">แท็กยอดนิยม (Popular Tags)</h2>
-        <div v-if="tagsPending" class="text-ink-600">กำลังโหลดแท็ก...</div>
+        <div v-if="tagsPending" class="flex flex-wrap gap-2">
+          <ChipSkeleton v-for="i in 12" :key="`tag-s-${i}`" />
+        </div>
         <div v-else class="flex flex-wrap gap-2">
           <NuxtLink
             v-for="t in popularTags"

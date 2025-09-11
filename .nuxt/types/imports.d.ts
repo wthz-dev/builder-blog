@@ -267,6 +267,7 @@ declare global {
   const useObjectUrl: typeof import('../../node_modules/@vueuse/core')['useObjectUrl']
   const useOffsetPagination: typeof import('../../node_modules/@vueuse/core')['useOffsetPagination']
   const useOnline: typeof import('../../node_modules/@vueuse/core')['useOnline']
+  const usePageBlocker: typeof import('../../composables/usePageBlocker')['usePageBlocker']
   const usePageLeave: typeof import('../../node_modules/@vueuse/core')['usePageLeave']
   const useParallax: typeof import('../../node_modules/@vueuse/core')['useParallax']
   const useParentElement: typeof import('../../node_modules/@vueuse/core')['useParentElement']
@@ -410,6 +411,9 @@ declare global {
   // @ts-ignore
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { PageBlockerMode, PageBlockerAction, PageBlockerState } from '../../composables/usePageBlocker'
+  import('../../composables/usePageBlocker')
 }
 // for vue template auto import
 import { UnwrapRef } from 'vue'
@@ -681,6 +685,7 @@ declare module 'vue' {
     readonly useObjectUrl: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useObjectUrl']>
     readonly useOffsetPagination: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useOffsetPagination']>
     readonly useOnline: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useOnline']>
+    readonly usePageBlocker: UnwrapRef<typeof import('../../composables/usePageBlocker')['usePageBlocker']>
     readonly usePageLeave: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['usePageLeave']>
     readonly useParallax: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useParallax']>
     readonly useParentElement: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useParentElement']>

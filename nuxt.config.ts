@@ -8,6 +8,17 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      link: [
+        { rel: 'manifest', href: '/manifest.webmanifest' }
+      ],
+      meta: [
+        { name: 'theme-color', content: '#ffffff' }
+      ]
+    }
+  },
+
   // Global styles
   css: ['@/assets/css/main.css'],
 

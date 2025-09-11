@@ -1050,7 +1050,7 @@ const _JgBqzBoNmTyDbltbJGWxK0h4WGZpdJZgvTqGzfQuU = (function(nitro) {
 
 const rootDir = "/Users/worksDev/GitHub/builder-blog";
 
-const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[]};
+const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"},{"name":"theme-color","content":"#ffffff"}],"link":[{"rel":"manifest","href":"/manifest.webmanifest"}],"style":[],"script":[],"noscript":[]};
 
 const appRootTag = "div";
 

@@ -8,6 +8,9 @@
       <slot />
     </main>
 
+    <!-- Global Overlay -->
+    <PageBlocker />
+
     <!-- Footer -->
     <footer class="bg-ink-50 border-t border-ink-100 mt-16 dark:bg-ink-900 dark:border-ink-800">
       <div class="container mx-auto px-4 py-8">
