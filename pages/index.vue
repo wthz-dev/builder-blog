@@ -216,14 +216,23 @@
 
 <script setup lang="ts">
 // SEO Meta
+const runtime = useRuntimeConfig()
+const siteUrl = (runtime.public as any)?.siteUrl || ''
+const canonicalUrl = computed(() => `${siteUrl}/`)
+const ogImage = computed(() => `${siteUrl}/og-image.jpg`)
+
 useSeoMeta({
   title: 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
   ogTitle: 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
   description: 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
   ogDescription: 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
-  ogImage: '/og-image.jpg',
+  ogUrl: () => canonicalUrl.value,
+  ogImage: () => ogImage.value,
   twitterCard: 'summary_large_image',
+  twitterImage: () => ogImage.value,
 })
+
+useHead({ link: [{ rel: 'canonical', href: canonicalUrl.value }] })
 
 // Analytics helpers
 const { click: gClick } = useGtag()
