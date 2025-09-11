@@ -15,6 +15,7 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 
 interface _GlobalComponents {
       'AdsenseBanner': typeof import("../../components/AdsenseBanner.vue")['default']
+    'NavBar': typeof import("../../components/NavBar.vue")['default']
     'Pagination': typeof import("../../components/Pagination.vue")['default']
     'PostSkeleton': typeof import("../../components/PostSkeleton.vue")['default']
     'NuxtWelcome': typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']
@@ -42,6 +43,7 @@ interface _GlobalComponents {
     'NuxtIsland': typeof import("../../node_modules/nuxt/dist/app/components/nuxt-island")['default']
     'NuxtRouteAnnouncer': typeof import("../../node_modules/nuxt/dist/app/components/server-placeholder")['default']
       'LazyAdsenseBanner': LazyComponent<typeof import("../../components/AdsenseBanner.vue")['default']>
+    'LazyNavBar': LazyComponent<typeof import("../../components/NavBar.vue")['default']>
     'LazyPagination': LazyComponent<typeof import("../../components/Pagination.vue")['default']>
     'LazyPostSkeleton': LazyComponent<typeof import("../../components/PostSkeleton.vue")['default']>
     'LazyNuxtWelcome': LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']>

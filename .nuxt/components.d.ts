@@ -15,6 +15,7 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 
 
 export const AdsenseBanner: typeof import("../components/AdsenseBanner.vue")['default']
+export const NavBar: typeof import("../components/NavBar.vue")['default']
 export const Pagination: typeof import("../components/Pagination.vue")['default']
 export const PostSkeleton: typeof import("../components/PostSkeleton.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
@@ -42,6 +43,7 @@ export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const NuxtRouteAnnouncer: typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']
 export const LazyAdsenseBanner: LazyComponent<typeof import("../components/AdsenseBanner.vue")['default']>
+export const LazyNavBar: LazyComponent<typeof import("../components/NavBar.vue")['default']>
 export const LazyPagination: LazyComponent<typeof import("../components/Pagination.vue")['default']>
 export const LazyPostSkeleton: LazyComponent<typeof import("../components/PostSkeleton.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>

@@ -25,7 +25,8 @@ type NuxtAppInjections =
   InjectionType<typeof import("../../node_modules/nuxt/dist/app/plugins/check-if-layout-used.js")> &
   InjectionType<typeof import("../../plugins/adsense.client")> &
   InjectionType<typeof import("../../plugins/auth.client")> &
-  InjectionType<typeof import("../../plugins/gtag.client")>
+  InjectionType<typeof import("../../plugins/gtag.client")> &
+  InjectionType<typeof import("../../plugins/theme.client")>
 
 declare module '#app' {
   interface NuxtApp extends NuxtAppInjections { }

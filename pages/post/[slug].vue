@@ -145,8 +145,8 @@ const route = useRoute()
 const slug = route.params.slug as string
 const runtime = useRuntimeConfig()
 
-// Fetch post data
-const { data: post, pending, error } = await useFetch(`/api/posts/${slug}`, {
+// Fetch post data (no top-level await to satisfy TS linter)
+const { data: post, pending, error } = useFetch(`/api/posts/${slug}`, {
   key: `post-${slug}`
 })
 

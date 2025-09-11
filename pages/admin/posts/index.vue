@@ -24,7 +24,7 @@
           <div class="min-w-64">
             <label class="block text-xs font-medium text-ink-600 mb-1">หมวด (หลายรายการ)</label>
             <Multiselect
-              class="text-black"
+              class="text-ink-900"
               v-model="selectedCategories"
               :options="categoryOptions"
               :multiple="true"
@@ -208,7 +208,7 @@ function formatDate(dt: string | null) {
   }
 }
 
-const { data, error: err, pending: p } = await useAsyncData('admin-posts', async () => {
+const { data, error: err, pending: p } = useAsyncData('admin-posts', async () => {
   const headers = process.server ? (useRequestHeaders(['cookie']) as Record<string, string>) : undefined
   return $fetch<{ posts: any[] }>('/api/admin/posts', { headers })
 })
