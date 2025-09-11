@@ -124,7 +124,7 @@
       <!-- Featured Post -->
       <div v-if="featuredPost" class="mt-8">
         <h2 class="text-xl font-semibold text-ink-900 mb-4">แนะนำสำหรับคุณ</h2>
-        <NuxtLink :to="`/post/${featuredPost.slug}`" class="block rounded-2xl overflow-hidden border border-ink-100 bg-white hover:shadow-soft transition">
+        <NuxtLink :to="`/post/${encodeURIComponent(featuredPost.slug)}`" class="block rounded-2xl overflow-hidden border border-ink-100 bg-white hover:shadow-soft transition">
           <div class="relative aspect-[16/7] bg-ink-50">
             <NuxtImg v-if="featuredPost.coverImageUrl" :src="featuredPost.coverImageUrl" :alt="featuredPost.title" class="w-full h-full object-cover" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -163,7 +163,7 @@
             :key="post.id"
             class="bg-white rounded-xl border border-ink-100 overflow-hidden hover:shadow-soft transition-shadow duration-300"
           >
-            <NuxtLink :to="`/post/${post.slug}`">
+            <NuxtLink :to="`/post/${encodeURIComponent(post.slug)}`">
               <div class="aspect-[16/9] bg-gradient-to-br from-ink-100 to-ink-50 relative overflow-hidden">
                 <NuxtImg
                   v-if="post.coverImageUrl"

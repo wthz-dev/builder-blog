@@ -30,7 +30,8 @@ export default defineEventHandler(async (event) => {
   // 3) Parse classic web form data
   const form = await readFormData(event)
   const title = String(form.get('title') || '').trim()
-  const slug = String(form.get('slug') || '').trim()
+  const rawSlug = String(form.get('slug') || '').trim()
+  const normSlug = rawSlug ? rawSlug.normalize('NFC') : ''
   const excerpt = String(form.get('excerpt') || '').trim()
   const content = String(form.get('content') || '').trim()
   let coverImageUrl = String(form.get('coverImageUrl') || '') || null
@@ -45,7 +46,7 @@ export default defineEventHandler(async (event) => {
     ? tagNamesRaw.split(',').map(s => s.trim()).filter(Boolean)
     : []
 
-  if (!title || !slug) {
+  if (!title || !normSlug) {
     throw createError({ statusCode: 400, statusMessage: 'Title and slug are required' })
   }
 
@@ -87,7 +88,7 @@ export default defineEventHandler(async (event) => {
     const created = await tx.post.create({
       data: {
         title,
-        slug,
+        slug: normSlug,
         excerpt: excerpt || null,
         content: content || null,
         coverImageUrl,
@@ -134,7 +135,7 @@ export default defineEventHandler(async (event) => {
 
   // 5) Redirect to the new post page (fallback to home)
   try {
-    return await sendRedirect(event, `/post/${post.slug}`, 302)
+    return await sendRedirect(event, `/post/${encodeURIComponent(post.slug)}`, 302)
   } catch {
     return { ok: true, postId: post.id, slug: post.slug }
   }

@@ -1145,7 +1145,22 @@ const plugins = [
 _5v03cVl4y3HiJQc9bt5nfi1lJYCkyC4pRUbeq4rkvI
 ];
 
-const assets = {};
+const assets = {
+  "/index.mjs": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": "\"1b069-69p8QRwBDnGYRySbIY3QLwFsc8E\"",
+    "mtime": "2025-09-11T03:17:25.879Z",
+    "size": 110697,
+    "path": "index.mjs"
+  },
+  "/index.mjs.map": {
+    "type": "application/json",
+    "etag": "\"633ca-AwQJlM3EzbQFANZWA3DLAzy88Hs\"",
+    "mtime": "2025-09-11T03:17:25.879Z",
+    "size": 406474,
+    "path": "index.mjs.map"
+  }
+};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -2011,7 +2026,8 @@ const posts_post = defineEventHandler(async (event) => {
   }
   const form = await readFormData(event);
   const title = String(form.get("title") || "").trim();
-  const slug = String(form.get("slug") || "").trim();
+  const rawSlug = String(form.get("slug") || "").trim();
+  const normSlug = rawSlug ? rawSlug.normalize("NFC") : "";
   const excerpt = String(form.get("excerpt") || "").trim();
   const content = String(form.get("content") || "").trim();
   let coverImageUrl = String(form.get("coverImageUrl") || "") || null;
@@ -2020,7 +2036,7 @@ const posts_post = defineEventHandler(async (event) => {
   const tagNamesRaw = String(form.get("tagNames") || "").trim();
   const categoryNames = categoryNamesRaw ? categoryNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
   const tagNames = tagNamesRaw ? tagNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
-  if (!title || !slug) {
+  if (!title || !normSlug) {
     throw createError({ statusCode: 400, statusMessage: "Title and slug are required" });
   }
   const coverImageFile = form.get("coverImage");
@@ -2056,7 +2072,7 @@ const posts_post = defineEventHandler(async (event) => {
     const created = await tx.post.create({
       data: {
         title,
-        slug,
+        slug: normSlug,
         excerpt: excerpt || null,
         content: content || null,
         coverImageUrl,
@@ -2097,7 +2113,7 @@ const posts_post = defineEventHandler(async (event) => {
     return created;
   });
   try {
-    return await sendRedirect(event, `/post/${post.slug}`, 302);
+    return await sendRedirect(event, `/post/${encodeURIComponent(post.slug)}`, 302);
   } catch {
     return { ok: true, postId: post.id, slug: post.slug };
   }
@@ -2639,7 +2655,8 @@ const index_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProper
 
 const _slug__get = defineEventHandler(async (event) => {
   try {
-    const slug = getRouterParam(event, "slug");
+    const slugParam = getRouterParam(event, "slug");
+    const slug = slugParam ? slugParam.normalize("NFC") : "";
     if (!slug) {
       throw createError({
         statusCode: 400,
@@ -2862,7 +2879,7 @@ const sitemap_xml = defineEventHandler(async (event) => {
     const postPages = posts.map((post) => {
       var _a;
       return {
-        url: `/post/${post.slug}`,
+        url: `/post/${encodeURIComponent(post.slug)}`,
         lastmod: ((_a = post.publishedAt) == null ? void 0 : _a.toISOString()) || (/* @__PURE__ */ new Date()).toISOString(),
         priority: "0.9"
       };

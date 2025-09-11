@@ -36,12 +36,18 @@
           <form v-else method="post" :action="`/api/admin/posts/${post.id}/update`" enctype="multipart/form-data" class="space-y-6">
             <div>
               <label class="block text-sm font-medium text-ink-700 mb-2">ชื่อเรื่อง</label>
-              <input name="title" id="title" type="text" required class="w-full px-3 py-2 border border-ink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-300" :value="post.title" />
+              <input name="title" id="title" type="text" required class="w-full px-3 py-2 border border-ink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-300" :value="post.title" @input="onTitleInput" />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-ink-700 mb-2">Slug</label>
-              <input name="slug" id="slug" type="text" required class="w-full px-3 py-2 border border-ink-200 rounded-lg" :value="post.slug" />
+              <div class="flex items-center gap-2">
+                <input name="slug" id="slug" type="text" required class="w-full px-3 py-2 border border-ink-200 rounded-lg" v-model="slugVal" />
+                <button type="button" class="px-3 py-2 text-sm border border-ink-200 rounded-lg hover:bg-ink-50" @click="generateLatinSlug">Generate Latin slug</button>
+              </div>
+              <p class="text-xs text-ink-500 mt-1">แก้ไข slug ได้ตามต้องการ • กดปุ่มเพื่อแปลงจากชื่อเรื่องเป็นตัวอักษรอังกฤษ</p>
+              <!-- keep a hidden input to submit v-model value into 'slug' field -->
+              <input type="hidden" name="slug" :value="slugVal" />
             </div>
 
             <div>
@@ -162,6 +168,9 @@ const tagOptions = ref<string[]>([])
 const selectedCategories = ref<string[]>([])
 const selectedTags = ref<string[]>([])
 const removeCover = ref(false)
+// Slug editing state
+const slugVal = ref('')
+const titleValue = ref('')
 
 const { data, error: err, pending: p } = await useAsyncData(`admin-post-${id}`, async () => {
   const headers = process.server ? (useRequestHeaders(['cookie']) as Record<string, string>) : undefined
@@ -182,6 +191,9 @@ watchEffect(() => {
   const v = data.value
   if (!v) return
   post.value = v.post
+  // initialize slug/title locals
+  slugVal.value = post.value?.slug || ''
+  titleValue.value = post.value?.title || ''
   categoryOptions.value = (v.cats?.categories || []).map((c: any) => c.name)
   tagOptions.value = (v.tags?.tags || []).map((t: any) => t.name)
   selectedCategories.value = (post.value?.categories || []).map((c: any) => c.name || c.category?.name).filter(Boolean)
@@ -199,5 +211,38 @@ function addTag(newTag: string) {
   if (!v) return
   if (!tagOptions.value.includes(v)) tagOptions.value.push(v)
   if (!selectedTags.value.includes(v)) selectedTags.value.push(v)
+}
+
+function onTitleInput(e: Event) {
+  const v = (e.target as HTMLInputElement).value
+  titleValue.value = v
+}
+
+function generateLatinSlug() {
+  const v = titleValue.value || ''
+  const latin = thaiToLatin(v)
+  slugVal.value = latin
+}
+
+function thaiToLatin(input: string) {
+  const map: Record<string, string> = {
+    'ก': 'k','ข': 'kh','ฃ': 'kh','ค': 'kh','ฅ': 'kh','ฆ': 'kh','ง': 'ng','จ': 'ch','ฉ': 'ch','ช': 'ch','ซ': 's','ฌ': 'ch',
+    'ญ': 'y','ฎ': 'd','ฏ': 't','ฐ': 'th','ฑ': 'th','ฒ': 'th','ด': 'd','ต': 't','ถ': 'th','ท': 'th','ธ': 'th','ณ': 'n','น': 'n',
+    'บ': 'b','ป': 'p','ผ': 'ph','พ': 'ph','ภ': 'ph','ฝ': 'f','ฟ': 'f','ม': 'm','ย': 'y','ร': 'r','ล': 'l','ว': 'w','ศ': 's','ษ': 's','ส': 's','ห': 'h','ฮ': 'h',
+    'อ': 'o','ฤ': 'rue','ฦ': 'lue',
+    'ะ': 'a','า': 'a','ิ': 'i','ี': 'i','ึ': 'ue','ื': 'ue','ุ': 'u','ู': 'u','เ': 'e','แ': 'ae','โ': 'o','ไ': 'ai','ใ': 'ai','ๅ': 'a',
+    '๑': '1','๒': '2','๓': '3','๔': '4','๕': '5','๖': '6','๗': '7','๘': '8','๙': '9','๐': '0'
+  }
+  const toneRemoved = input.replace(/[\u0E48-\u0E4B]/g, '')
+  const replaced = Array.from(toneRemoved).map(ch => map[ch] ?? ch).join('')
+  return replaced
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\-\s]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 </script>

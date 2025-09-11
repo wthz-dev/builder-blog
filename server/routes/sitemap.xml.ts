@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
     // Dynamic post pages
     const postPages = posts.map(post => ({
-      url: `/post/${post.slug}`,
+      url: `/post/${encodeURIComponent(post.slug)}`,
       lastmod: post.publishedAt?.toISOString() || new Date().toISOString(),
       priority: '0.9'
     }))

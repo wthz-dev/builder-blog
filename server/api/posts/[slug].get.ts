@@ -2,7 +2,8 @@ import { prisma } from '~/lib/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
-    const slug = getRouterParam(event, 'slug')
+    const slugParam = getRouterParam(event, 'slug')
+    const slug = slugParam ? slugParam.normalize('NFC') : ''
     
     if (!slug) {
       throw createError({
