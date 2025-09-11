@@ -1148,16 +1148,16 @@ _5v03cVl4y3HiJQc9bt5nfi1lJYCkyC4pRUbeq4rkvI
 const assets = {
   "/index.mjs": {
     "type": "text/javascript; charset=utf-8",
-    "etag": "\"1a59e-yN1d0NKii4+Xn7yuNechYqZNDmA\"",
-    "mtime": "2025-09-10T09:37:27.948Z",
-    "size": 107934,
+    "etag": "\"1aff4-0H3owhFVOCq9PJBImswuo+iUDXs\"",
+    "mtime": "2025-09-11T02:43:29.899Z",
+    "size": 110580,
     "path": "index.mjs"
   },
   "/index.mjs.map": {
     "type": "application/json",
-    "etag": "\"60605-vohca2o9eIoR6KD5munVZYBWaaI\"",
-    "mtime": "2025-09-10T09:37:27.948Z",
-    "size": 394757,
+    "etag": "\"631b7-n8CisPT5RCQC80LRZOGgU7ElbVc\"",
+    "mtime": "2025-09-11T02:43:29.899Z",
+    "size": 405943,
     "path": "index.mjs.map"
   }
 };
@@ -2211,6 +2211,7 @@ const update_post = defineEventHandler(async (event) => {
   const content = String(form.get("content") || "").trim();
   let coverImageUrl = String(form.get("coverImageUrl") || "") || void 0;
   const publishNow = form.get("publishNow") !== null;
+  const removeCover = form.get("removeCover") !== null;
   const categoryNamesRaw = String(form.get("categoryNames") || "").trim();
   const tagNamesRaw = String(form.get("tagNames") || "").trim();
   const categoryNames = categoryNamesRaw ? categoryNamesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
@@ -2218,6 +2219,7 @@ const update_post = defineEventHandler(async (event) => {
   if (!title || !slug) {
     throw createError({ statusCode: 400, statusMessage: "Title and slug are required" });
   }
+  const current = await prisma.post.findUnique({ where: { id }, select: { coverImageUrl: true } });
   const file = form.get("coverImage");
   if (file && file.size > 0) {
     const cloudName = config.cloudinaryCloudName;
@@ -2247,6 +2249,33 @@ const update_post = defineEventHandler(async (event) => {
       throw createError({ statusCode: 500, statusMessage: "Image upload failed" });
     }
   }
+  async function tryDeleteOldCloudinary(url) {
+    if (!url) return;
+    try {
+      const cloudName = config.cloudinaryCloudName;
+      const apiKey = config.cloudinaryApiKey;
+      const apiSecret = config.cloudinaryApiSecret;
+      if (!cloudName || !apiKey || !apiSecret) return;
+      if (!/res\.cloudinary\.com\//.test(url)) return;
+      const m = url.match(/res\.cloudinary\.com\/[^/]+\/image\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/);
+      const publicId = m == null ? void 0 : m[1];
+      if (!publicId) return;
+      const timestamp = Math.floor(Date.now() / 1e3);
+      const signatureBase = `public_id=${publicId}&timestamp=${timestamp}`;
+      const signature = createHash("sha1").update(signatureBase + apiSecret).digest("hex");
+      const body = new FormData();
+      body.append("public_id", publicId);
+      body.append("api_key", apiKey);
+      body.append("timestamp", String(timestamp));
+      body.append("signature", signature);
+      await $fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
+        method: "POST",
+        body
+      });
+    } catch (e) {
+      console.warn("Cloudinary destroy failed (ignored):", e);
+    }
+  }
   const data = {
     title,
     slug,
@@ -2254,7 +2283,17 @@ const update_post = defineEventHandler(async (event) => {
     content: content || null,
     publishedAt: publishNow ? /* @__PURE__ */ new Date() : null
   };
-  if (typeof coverImageUrl !== "undefined" && coverImageUrl !== "") {
+  if (removeCover) {
+    await tryDeleteOldCloudinary((current == null ? void 0 : current.coverImageUrl) || void 0);
+    if (typeof coverImageUrl === "string" && coverImageUrl !== "") {
+      data.coverImageUrl = coverImageUrl;
+    } else {
+      data.coverImageUrl = null;
+    }
+  } else if (typeof coverImageUrl === "string" && coverImageUrl !== "") {
+    if ((current == null ? void 0 : current.coverImageUrl) && current.coverImageUrl !== coverImageUrl) {
+      await tryDeleteOldCloudinary(current.coverImageUrl);
+    }
     data.coverImageUrl = coverImageUrl;
   }
   const updated = await prisma.$transaction(async (tx) => {
@@ -2826,6 +2865,10 @@ const sitemap_xml = defineEventHandler(async (event) => {
       },
       orderBy: { publishedAt: "desc" }
     });
+    const [categories, tags] = await Promise.all([
+      prisma.category.findMany({ select: { name: true } }),
+      prisma.tag.findMany({ select: { name: true } })
+    ]);
     const staticPages = [
       { url: "/", lastmod: (/* @__PURE__ */ new Date()).toISOString(), priority: "1.0" },
       { url: "/about", lastmod: (/* @__PURE__ */ new Date()).toISOString(), priority: "0.8" },
@@ -2839,7 +2882,17 @@ const sitemap_xml = defineEventHandler(async (event) => {
         priority: "0.9"
       };
     });
-    const allPages = [...staticPages, ...postPages];
+    const categoryPages = (categories || []).filter((c) => !!(c == null ? void 0 : c.name)).map((c) => ({
+      url: `/category/${encodeURIComponent(c.name)}`,
+      lastmod: (/* @__PURE__ */ new Date()).toISOString(),
+      priority: "0.6"
+    }));
+    const tagPages = (tags || []).filter((t) => !!(t == null ? void 0 : t.name)).map((t) => ({
+      url: `/tag/${encodeURIComponent(t.name)}`,
+      lastmod: (/* @__PURE__ */ new Date()).toISOString(),
+      priority: "0.5"
+    }));
+    const allPages = [...staticPages, ...postPages, ...categoryPages, ...tagPages];
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allPages.map((page) => `  <url>

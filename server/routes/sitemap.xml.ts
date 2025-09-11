@@ -14,6 +14,12 @@ export default defineEventHandler(async (event) => {
       orderBy: { publishedAt: 'desc' }
     })
 
+    // Get all categories and tags (names only)
+    const [categories, tags] = await Promise.all([
+      prisma.category.findMany({ select: { name: true } }),
+      prisma.tag.findMany({ select: { name: true } })
+    ])
+
     // Static pages
     const staticPages = [
       { url: '/', lastmod: new Date().toISOString(), priority: '1.0' },
@@ -28,7 +34,25 @@ export default defineEventHandler(async (event) => {
       priority: '0.9'
     }))
 
-    const allPages = [...staticPages, ...postPages]
+    // Category pages
+    const categoryPages = (categories || [])
+      .filter(c => !!c?.name)
+      .map(c => ({
+        url: `/category/${encodeURIComponent(c.name)}`,
+        lastmod: new Date().toISOString(),
+        priority: '0.6'
+      }))
+
+    // Tag pages
+    const tagPages = (tags || [])
+      .filter(t => !!t?.name)
+      .map(t => ({
+        url: `/tag/${encodeURIComponent(t.name)}`,
+        lastmod: new Date().toISOString(),
+        priority: '0.5'
+      }))
+
+    const allPages = [...staticPages, ...postPages, ...categoryPages, ...tagPages]
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
