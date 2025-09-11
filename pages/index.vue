@@ -18,7 +18,7 @@
          ▶ Watch on TikTok
       </a>
       <a href="/tag/blog"
-         class="px-6 py-3 bg-white text-ink-900 rounded-lg font-semibold hover:bg-ink-100 transition"
+         class="px-6 py-3 bg-white text-black rounded-lg font-semibold hover:bg-ink-100 transition"
          @click="onReadBlogClick"
       >
          ✍ Read the Blog
