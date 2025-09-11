@@ -21,8 +21,11 @@
 
           <div>
             <label class="block text-sm font-medium text-ink-700 mb-2">Slug</label>
-            <input name="slug" id="slug" type="text" required class="w-full px-3 py-2 border border-ink-200 rounded-lg" :value="slug" readonly />
-            <p class="text-xs text-ink-500 mt-1">จะถูกสร้างอัตโนมัติจากชื่อเรื่อง (แก้ไขได้ภายหลังในฐานข้อมูล)</p>
+            <div class="flex gap-2 items-center">
+              <input name="slug" id="slug" type="text" required class="w-full px-3 py-2 border border-ink-200 rounded-lg" v-model="slug" />
+              <button type="button" class="px-3 py-2 text-sm border border-ink-200 rounded-lg hover:bg-ink-50" @click="generateLatinSlug">Generate Latin slug</button>
+            </div>
+            <p class="text-xs text-ink-500 mt-1">ระบบสร้างอัตโนมัติจากชื่อเรื่อง แก้ไขเองได้ตามต้องการ รองรับภาษาไทย • กดปุ่มเพื่อสร้างสลักตัวอักษรอังกฤษ</p>
           </div>
 
           <div>
@@ -114,19 +117,55 @@ useSeoMeta({
 // ใช้ middleware 'auth' แทนการ await checkAuth() ที่ top-level
 
 const slug = ref('')
+const titleValue = ref('')
 function slugify(input: string) {
   return input
     .toLowerCase()
+    // แปลงช่องว่างเป็นขีดกลาง
     .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
+    // อนุญาต a-z, 0-9, ขีดกลาง และอักขระไทยช่วง \u0E00-\u0E7F
+    .replace(/[^a-z0-9\u0E00-\u0E7F-]/g, '')
+    // รวมขีดกลางซ้ำ
     .replace(/--+/g, '-')
+    // ตัดขีดกลางหัว-ท้าย
     .replace(/^-+|-+$/g, '')
 }
 function onTitleInput(e: Event) {
   const v = (e.target as HTMLInputElement).value
+  titleValue.value = v
   slug.value = slugify(v)
-  const slugEl = document.getElementById('slug') as HTMLInputElement | null
-  if (slugEl) slugEl.value = slug.value
+}
+
+// Generate Latin slug from current title (rough Thai -> Latin transliteration)
+function generateLatinSlug() {
+  const v = titleValue.value || ''
+  const latin = thaiToLatin(v)
+  slug.value = latin
+}
+
+function thaiToLatin(input: string) {
+  const map: Record<string, string> = {
+    'ก': 'k','ข': 'kh','ฃ': 'kh','ค': 'kh','ฅ': 'kh','ฆ': 'kh','ง': 'ng','จ': 'ch','ฉ': 'ch','ช': 'ch','ซ': 's','ฌ': 'ch',
+    'ญ': 'y','ฎ': 'd','ฏ': 't','ฐ': 'th','ฑ': 'th','ฒ': 'th','ด': 'd','ต': 't','ถ': 'th','ท': 'th','ธ': 'th','ณ': 'n','น': 'n',
+    'บ': 'b','ป': 'p','ผ': 'ph','พ': 'ph','ภ': 'ph','ฝ': 'f','ฟ': 'f','ม': 'm','ย': 'y','ร': 'r','ล': 'l','ว': 'w','ศ': 's','ษ': 's','ส': 's','ห': 'h','ฮ': 'h',
+    'อ': 'o','ฤ': 'rue','ฦ': 'lue',
+    'ะ': 'a','า': 'a','ิ': 'i','ี': 'i','ึ': 'ue','ื': 'ue','ุ': 'u','ู': 'u','เ': 'e','แ': 'ae','โ': 'o','ไ': 'ai','ใ': 'ai','ๅ': 'a',
+    '๑': '1','๒': '2','๓': '3','๔': '4','๕': '5','๖': '6','๗': '7','๘': '8','๙': '9','๐': '0'
+  }
+  // Remove tone marks
+  const toneRemoved = input.replace(/[\u0E48-\u0E4B]/g, '')
+  // Replace Thai chars
+  const replaced = Array.from(toneRemoved).map(ch => map[ch] ?? ch).join('')
+  // Build slug
+  return replaced
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+    .replace(/[^a-z0-9\-\s]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 // Load options for categories and tags (no top-level await)
