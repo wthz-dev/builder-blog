@@ -11,15 +11,23 @@ export default defineNuxtConfig({
   // Global styles
   css: ['@/assets/css/main.css'],
 
-  // Runtime configuration
+  // Runtime configuration (single consolidated block)
   runtimeConfig: {
     // Server-only secrets
     jwtSecret: process.env.JWT_SECRET,
     databaseUrl: process.env.DATABASE_URL,
+    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
     // Public runtime config available on client
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api'
+      siteUrl:
+        process.env.NODE_ENV === 'production'
+          ? (process.env.NUXT_PUBLIC_SITE_URL || 'https://whitebikevibes.space')
+          : 'http://localhost:3000',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
+      adsensePublisherId: process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID || '',
+      gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || ''
     }
   },
 
@@ -35,24 +43,6 @@ export default defineNuxtConfig({
     plugins: {
       '@tailwindcss/postcss': {},
       autoprefixer: {},
-    },
-  },
-
-  // Runtime config for server secrets
-  runtimeConfig: {
-    jwtSecret: process.env.JWT_SECRET,
-    databaseUrl: process.env.DATABASE_URL,
-    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
-    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
-    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
-    public: {
-      siteUrl:
-        process.env.NODE_ENV === 'production'
-          ? process.env.NUXT_PUBLIC_SITE_URL || 'https://whitebikevibes.com'
-          : 'http://localhost:3000',
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      adsensePublisherId: process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID || '',
-      gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || ''
     },
   },
 })
