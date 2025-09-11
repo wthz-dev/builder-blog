@@ -38,8 +38,8 @@
             <div class="flex flex-wrap gap-1">
               <NuxtLink
                 v-for="category in post.categories"
-                :key="category"
-                :to="`/category/${category}`"
+                :key="category?.name"
+                :to="`/category/${encodeURIComponent(category?.name)}`"
                 class="rounded bg-brand-50 px-2 py-0.5 text-[12px] font-medium text-brand-800 hover:bg-brand-100 transition-colors"
               >
                 {{ category.name }}
@@ -80,8 +80,8 @@
         <div v-if="post.tags && post.tags.length > 0" class="flex flex-wrap gap-2 mb-12">
           <NuxtLink
             v-for="tag in post.tags"
-            :key="tag"
-            :to="`/tag/${tag}`"
+            :key="tag?.name"
+            :to="`/tag/${encodeURIComponent(tag?.name)}`"
             class="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-700 hover:bg-ink-50 transition-colors"
           >
             #{{ tag.name }}
@@ -139,6 +139,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 const { user, logout } = useAuth()
 const route = useRoute()
 const slug = route.params.slug as string
@@ -247,6 +248,9 @@ function formatDate(dateString: string) {
 }
 
 // Share helpers
+const commentContent = ref('')
+const commentError = ref<string | null>(null)
+const submittingComment = ref(false)
 const shareTitle = computed(() => post.value?.title || 'WhiteBikeVibes')
 const shareText = computed(() => post.value?.excerpt || post.value?.title || 'WhiteBikeVibes')
 
