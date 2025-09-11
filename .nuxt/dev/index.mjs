@@ -1,5 +1,5 @@
 import process from 'node:process';globalThis._importMeta_={url:import.meta.url,env:process.env};import { tmpdir } from 'node:os';
-import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, getResponseStatus, lazyEventHandler, useBase, createApp, createRouter as createRouter$1, toNodeListener, getRouterParam, getCookie, readFormData, setCookie, deleteCookie, setHeader, getResponseStatusText } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/h3/dist/index.mjs';
+import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, getResponseStatus, lazyEventHandler, useBase, createApp, createRouter as createRouter$1, toNodeListener, getRouterParam, getCookie, readFormData, setCookie, deleteCookie, readMultipartFormData, setHeader, getResponseStatusText } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/h3/dist/index.mjs';
 import { Server } from 'node:http';
 import { resolve, dirname, join } from 'node:path';
 import nodeCrypto, { createHash } from 'node:crypto';
@@ -1662,6 +1662,7 @@ const _lazy_5yWhui = () => Promise.resolve().then(function () { return index_pos
 const _lazy_4eTN_d = () => Promise.resolve().then(function () { return index_post$1; });
 const _lazy_rJza0U = () => Promise.resolve().then(function () { return _slug__get$1; });
 const _lazy_uR1GqI = () => Promise.resolve().then(function () { return index_get$1; });
+const _lazy_ZgmDNQ = () => Promise.resolve().then(function () { return avatar_post$1; });
 const _lazy_vEar24 = () => Promise.resolve().then(function () { return search_get$1; });
 const _lazy_xdEQ6A = () => Promise.resolve().then(function () { return tags_get$1; });
 const _lazy_C_KWjT = () => Promise.resolve().then(function () { return sitemap_xml$1; });
@@ -1685,6 +1686,7 @@ const handlers = [
   { route: '/api/contact', handler: _lazy_4eTN_d, lazy: true, middleware: false, method: "post" },
   { route: '/api/posts/:slug', handler: _lazy_rJza0U, lazy: true, middleware: false, method: "get" },
   { route: '/api/posts', handler: _lazy_uR1GqI, lazy: true, middleware: false, method: "get" },
+  { route: '/api/profile/avatar', handler: _lazy_ZgmDNQ, lazy: true, middleware: false, method: "post" },
   { route: '/api/search', handler: _lazy_vEar24, lazy: true, middleware: false, method: "get" },
   { route: '/api/tags', handler: _lazy_xdEQ6A, lazy: true, middleware: false, method: "get" },
   { route: '/sitemap.xml', handler: _lazy_C_KWjT, lazy: true, middleware: false, method: undefined },
@@ -2509,7 +2511,8 @@ const me_get = defineEventHandler(async (event) => {
         id: true,
         name: true,
         email: true,
-        role: true
+        role: true,
+        avatarUrl: true
       }
     });
     if (!user) {
@@ -2906,6 +2909,64 @@ const index_get = defineEventHandler(async (event) => {
 const index_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: index_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const avatar_post = defineEventHandler(async (event) => {
+  try {
+    const config = useRuntimeConfig();
+    const token = getCookie(event, "auth-token");
+    if (!token) throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+    const secret = config.jwtSecret;
+    if (!secret) throw createError({ statusCode: 500, statusMessage: "JWT secret not configured" });
+    const decoded = jwt.verify(token, secret);
+    const userId = decoded == null ? void 0 : decoded.userId;
+    if (!userId) throw createError({ statusCode: 401, statusMessage: "Invalid token" });
+    const form = await readMultipartFormData(event);
+    if (!form || form.length === 0) throw createError({ statusCode: 400, statusMessage: "No file uploaded" });
+    const filePart = form.find((p) => p.name === "file");
+    if (!filePart || !filePart.data) throw createError({ statusCode: 400, statusMessage: "Missing file field" });
+    const cloudName = config.cloudinaryCloudName;
+    const apiKey = config.cloudinaryApiKey;
+    const apiSecret = config.cloudinaryApiSecret;
+    if (!cloudName || !apiKey || !apiSecret) {
+      throw createError({ statusCode: 500, statusMessage: "Cloudinary is not configured" });
+    }
+    const timestamp = Math.floor(Date.now() / 1e3);
+    const folder = "wbv_avatars";
+    const publicId = `user_${userId}`;
+    const paramsToSign = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
+    const signature = nodeCrypto.createHash("sha1").update(paramsToSign + apiSecret).digest("hex");
+    const fd = new FormData();
+    const blob = new Blob([filePart.data], { type: filePart.type || "application/octet-stream" });
+    fd.set("file", blob, filePart.filename || "avatar");
+    fd.set("api_key", apiKey);
+    fd.set("timestamp", String(timestamp));
+    fd.set("signature", signature);
+    fd.set("folder", folder);
+    fd.set("public_id", publicId);
+    fd.set("overwrite", "true");
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const res = await fetch(uploadUrl, { method: "POST", body: fd });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Cloudinary upload failed:", text);
+      throw createError({ statusCode: 502, statusMessage: "Upload failed" });
+    }
+    const payload = await res.json();
+    const avatarUrl = payload.secure_url;
+    if (!avatarUrl) throw createError({ statusCode: 502, statusMessage: "Upload response invalid" });
+    const updated = await prisma.user.update({ where: { id: userId }, data: { avatarUrl }, select: { id: true, name: true, email: true, role: true, avatarUrl: true } });
+    return { user: updated };
+  } catch (error) {
+    if (error == null ? void 0 : error.statusCode) throw error;
+    console.error("avatar upload error:", error);
+    throw createError({ statusCode: 500, statusMessage: "Failed to upload avatar" });
+  }
+});
+
+const avatar_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: avatar_post
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const search_get = defineEventHandler(async (event) => {

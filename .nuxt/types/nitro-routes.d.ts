@@ -49,6 +49,9 @@ declare module "nitropack/types" {
     '/api/posts': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/posts/index.get').default>>>>
     }
+    '/api/profile/avatar': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/profile/avatar.post').default>>>>
+    }
     '/api/search': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/search.get').default>>>>
     }
