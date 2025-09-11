@@ -2,7 +2,14 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const baseUrl = config.public.siteUrl
 
-  const robotsTxt = `User-agent: *
+  const robotsTxt = `# Global allow
+User-agent: *
+Allow: /
+
+# Explicit allow for Facebook crawlers
+User-agent: facebookexternalhit
+Allow: /
+User-agent: Facebot
 Allow: /
 
 # Disallow admin and auth pages
