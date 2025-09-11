@@ -2,6 +2,11 @@
   <div>
     <div v-if="pending">
       <PostSkeleton />
+      <div class="container mx-auto px-4 py-6">
+        <div class="mx-auto max-w-3xl space-y-3">
+          <CommentSkeleton v-for="i in 3" :key="`cs-${i}`" />
+        </div>
+      </div>
     </div>
     
     <div v-else-if="error" class="container mx-auto px-4 py-16 text-center">
@@ -139,14 +144,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { usePageBlocker } from '@/composables/usePageBlocker'
 const { user, logout } = useAuth()
 const route = useRoute()
 const slug = route.params.slug as string
 const runtime = useRuntimeConfig()
 
-// Fetch post data
-const { data: post, pending, error } = await useFetch(`/api/posts/${slug}`, {
+// Fetch post data (no top-level await to satisfy TS linter)
+const { data: post, pending, error } = useFetch(`/api/posts/${slug}`, {
   key: `post-${slug}`
 })
 
@@ -209,6 +215,8 @@ useHead({
 })
 
 // Submit comment
+const { show, hide } = usePageBlocker()
+
 async function submitComment() {
   if (!post.value || !user) return
   
@@ -216,7 +224,7 @@ async function submitComment() {
   submittingComment.value = true
   
   try {
-    await $fetch('/api/comments', {
+    const res: any = await $fetch('/api/comments', {
       method: 'POST',
       body: {
         postId: post.value.id,
@@ -224,12 +232,15 @@ async function submitComment() {
       },
       credentials: 'include'
     })
-    
-    commentContent.value = ''
-    
-    // Refresh post data to show new comment
-    await refreshNuxtData(`post-${slug}`)
-    trackEvent('comment_submit_success', { slug })
+    // If offline queued (from SW), show PageBlocker and skip immediate refresh
+    if (res && res.queued) {
+      show({ mode: 'offline-queued', message: 'คอมเมนต์ถูกเข้าคิวออฟไลน์ จะส่งอัตโนมัติเมื่อกลับมาออนไลน์', dismissible: true })
+      trackEvent('comment_submit_queued', { slug })
+    } else {
+      commentContent.value = ''
+      await refreshNuxtData(`post-${slug}`)
+      trackEvent('comment_submit_success', { slug })
+    }
   } catch (err: any) {
     commentError.value = err?.data?.message || err?.message || 'เกิดข้อผิดพลาดในการส่งความคิดเห็น'
     trackEvent('comment_submit_error', { slug, message: commentError.value })
@@ -267,6 +278,25 @@ const shareLinks = computed(() => {
 })
 
 const { trackEvent } = useGtag()
+// Listen service worker messages to hide blocker when sync finished
+function onSwMessage(e: MessageEvent) {
+  if (!e?.data) return
+  if (e.data.type === 'comments-synced') {
+    hide()
+    // Optional: refresh to show new comment
+    refreshNuxtData(`post-${slug}`)
+  }
+}
+onMounted(() => {
+  if (process.client && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', onSwMessage)
+  }
+})
+onBeforeUnmount(() => {
+  if (process.client && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.removeEventListener('message', onSwMessage)
+  }
+})
 async function shareNative() {
   if (!process.client) return
   try {

@@ -1050,7 +1050,7 @@ const _JgBqzBoNmTyDbltbJGWxK0h4WGZpdJZgvTqGzfQuU = (function(nitro) {
 
 const rootDir = "/Users/worksDev/GitHub/builder-blog";
 
-const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[]};
+const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"},{"name":"theme-color","content":"#ffffff"}],"link":[{"rel":"manifest","href":"/manifest.webmanifest"}],"style":[],"script":[],"noscript":[]};
 
 const appRootTag = "div";
 
@@ -1646,6 +1646,8 @@ const _GoF9hl = lazyEventHandler(() => {
   return useBase(opts.baseURL, ipxHandler);
 });
 
+const _lazy_N2vYWZ = () => Promise.resolve().then(function () { return contacts_get$1; });
+const _lazy_fanTjP = () => Promise.resolve().then(function () { return delete_post$3; });
 const _lazy_0QF1mu = () => Promise.resolve().then(function () { return posts_get$1; });
 const _lazy_NVXpIr = () => Promise.resolve().then(function () { return posts_post$1; });
 const _lazy_8B45QY = () => Promise.resolve().then(function () { return _id__get$1; });
@@ -1660,12 +1662,15 @@ const _lazy_5yWhui = () => Promise.resolve().then(function () { return index_pos
 const _lazy_4eTN_d = () => Promise.resolve().then(function () { return index_post$1; });
 const _lazy_rJza0U = () => Promise.resolve().then(function () { return _slug__get$1; });
 const _lazy_uR1GqI = () => Promise.resolve().then(function () { return index_get$1; });
+const _lazy_vEar24 = () => Promise.resolve().then(function () { return search_get$1; });
 const _lazy_xdEQ6A = () => Promise.resolve().then(function () { return tags_get$1; });
 const _lazy_C_KWjT = () => Promise.resolve().then(function () { return sitemap_xml$1; });
 const _lazy_CFOwPR = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
   { route: '', handler: _GAkPvG, lazy: false, middleware: true, method: undefined },
+  { route: '/api/admin/contacts', handler: _lazy_N2vYWZ, lazy: true, middleware: false, method: "get" },
+  { route: '/api/admin/contacts/:id/delete', handler: _lazy_fanTjP, lazy: true, middleware: false, method: "post" },
   { route: '/api/admin/posts', handler: _lazy_0QF1mu, lazy: true, middleware: false, method: "get" },
   { route: '/api/admin/posts', handler: _lazy_NVXpIr, lazy: true, middleware: false, method: "post" },
   { route: '/api/admin/posts/:id', handler: _lazy_8B45QY, lazy: true, middleware: false, method: "get" },
@@ -1680,6 +1685,7 @@ const handlers = [
   { route: '/api/contact', handler: _lazy_4eTN_d, lazy: true, middleware: false, method: "post" },
   { route: '/api/posts/:slug', handler: _lazy_rJza0U, lazy: true, middleware: false, method: "get" },
   { route: '/api/posts', handler: _lazy_uR1GqI, lazy: true, middleware: false, method: "get" },
+  { route: '/api/search', handler: _lazy_vEar24, lazy: true, middleware: false, method: "get" },
   { route: '/api/tags', handler: _lazy_xdEQ6A, lazy: true, middleware: false, method: "get" },
   { route: '/sitemap.xml', handler: _lazy_C_KWjT, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_error', handler: _lazy_CFOwPR, lazy: true, middleware: false, method: undefined },
@@ -1944,6 +1950,84 @@ var _a;
 const globalForPrisma = globalThis;
 const prisma = (_a = globalForPrisma.prisma) != null ? _a : new PrismaClient();
 globalForPrisma.prisma = prisma;
+
+const contacts_get = defineEventHandler(async (event) => {
+  const config = useRuntimeConfig();
+  const token = getCookie(event, "auth-token");
+  if (!token) {
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+  }
+  const secret = config.jwtSecret;
+  if (!secret) {
+    throw createError({ statusCode: 500, statusMessage: "JWT secret not configured" });
+  }
+  let decoded;
+  try {
+    decoded = jwt.verify(token, secret);
+  } catch {
+    throw createError({ statusCode: 401, statusMessage: "Invalid token" });
+  }
+  const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+  if (!user || user.role !== "ADMIN") {
+    throw createError({ statusCode: 403, statusMessage: "Forbidden" });
+  }
+  const query = getQuery$1(event);
+  const page = Math.max(1, parseInt(String(query.page || "1")));
+  const pageSize = Math.max(1, Math.min(50, parseInt(String(query.pageSize || "20"))));
+  const [total, items] = await Promise.all([
+    prisma.contact.count(),
+    prisma.contact.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize
+    })
+  ]);
+  return {
+    contacts: items,
+    page,
+    pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize))
+  };
+});
+
+const contacts_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: contacts_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const delete_post$2 = defineEventHandler(async (event) => {
+  const config = useRuntimeConfig();
+  const token = getCookie(event, "auth-token");
+  if (!token) {
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+  }
+  const secret = config.jwtSecret;
+  if (!secret) {
+    throw createError({ statusCode: 500, statusMessage: "JWT secret not configured" });
+  }
+  let decoded;
+  try {
+    decoded = jwt.verify(token, secret);
+  } catch {
+    throw createError({ statusCode: 401, statusMessage: "Invalid token" });
+  }
+  const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+  if (!user || user.role !== "ADMIN") {
+    throw createError({ statusCode: 403, statusMessage: "Forbidden" });
+  }
+  const id = getRouterParam(event, "id");
+  if (!id) {
+    throw createError({ statusCode: 400, statusMessage: "Contact id is required" });
+  }
+  await prisma.contact.delete({ where: { id } });
+  return { success: true };
+});
+
+const delete_post$3 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: delete_post$2
+}, Symbol.toStringTag, { value: 'Module' }));
 
 const posts_get = defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -2822,6 +2906,55 @@ const index_get = defineEventHandler(async (event) => {
 const index_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: index_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const search_get = defineEventHandler(async (event) => {
+  const q = String(getQuery$1(event).q || "").trim();
+  const page = Math.max(1, parseInt(String(getQuery$1(event).page || "1")));
+  const pageSize = Math.max(1, Math.min(24, parseInt(String(getQuery$1(event).pageSize || "12"))));
+  if (!q) {
+    return { posts: [], total: 0, totalPages: 1, page, pageSize };
+  }
+  const where = {
+    publishedAt: { lte: /* @__PURE__ */ new Date() },
+    OR: [
+      { title: { contains: q, mode: "insensitive" } },
+      { content: { contains: q, mode: "insensitive" } },
+      { tags: { some: { tag: { name: { contains: q, mode: "insensitive" } } } } },
+      { categories: { some: { category: { name: { contains: q, mode: "insensitive" } } } } }
+    ]
+  };
+  const [total, items] = await Promise.all([
+    prisma.post.count({ where }),
+    prisma.post.findMany({
+      where,
+      orderBy: { publishedAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        author: { select: { name: true } },
+        categories: { select: { category: { select: { id: true, name: true } } } },
+        tags: { select: { tag: { select: { id: true, name: true } } } }
+      }
+    })
+  ]);
+  const posts = items.map((p) => ({
+    ...p,
+    categories: p.categories.map((c) => c.category),
+    tags: p.tags.map((t) => t.tag)
+  }));
+  return {
+    posts,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    page,
+    pageSize
+  };
+});
+
+const search_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: search_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const tags_get = defineEventHandler(async () => {

@@ -32,19 +32,6 @@
           </div>
           
           <div>
-            <label for="subject" class="block text-sm font-medium text-ink-700 mb-2">
-              หัวข้อ *
-            </label>
-            <input
-              id="subject"
-              v-model="form.subject"
-              type="text"
-              required
-              class="w-full px-3 py-2 border border-ink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-300"
-            />
-          </div>
-          
-          <div>
             <label for="message" class="block text-sm font-medium text-ink-700 mb-2">
               ข้อความ *
             </label>
@@ -68,7 +55,7 @@
           <button
             type="submit"
             :disabled="submitting"
-            class="w-full bg-brand-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-60 transition-colors"
+            class="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-black/80 disabled:opacity-60 transition-colors"
           >
             {{ submitting ? 'กำลังส่ง...' : 'ส่งข้อความ' }}
           </button>
@@ -91,7 +78,6 @@ useSeoMeta({
 const form = reactive({
   name: '',
   email: '',
-  subject: '',
   message: ''
 })
 
@@ -115,7 +101,6 @@ async function submitForm() {
     // Reset form
     form.name = ''
     form.email = ''
-    form.subject = ''
     form.message = ''
   } catch (err: any) {
     error.value = err.data?.message || 'เกิดข้อผิดพลาดในการส่งข้อความ'

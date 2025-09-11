@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" class="h-12 w-auto">
+  <!-- Icon: abstract bike -->
+  <path d="M50 60c10-20 40-20 50 0s40 20 50 0" 
+        stroke="#e60012" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="50" cy="60" r="15" stroke="#000" stroke-width="6" fill="none"/>
+  <circle cx="150" cy="60" r="15" stroke="#000" stroke-width="6" fill="none"/>
+  
+  <!-- Text -->
+  <text x="200" y="70" font-family="Arial, Helvetica, sans-serif" 
+        font-weight="700" font-size="32" fill="#000">
+    White
+    <tspan fill="#e60012">Bike</tspan>
+    Vibes
+  </text>
+</svg>

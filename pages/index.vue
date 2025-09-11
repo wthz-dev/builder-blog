@@ -18,7 +18,7 @@
          ▶ Watch on TikTok
       </a>
       <a href="/tag/blog"
-         class="px-6 py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition"
+         class="px-6 py-3 bg-white text-ink-900 rounded-lg font-semibold hover:bg-ink-100 transition"
          @click="onReadBlogClick"
       >
          ✍ Read the Blog
@@ -55,7 +55,7 @@
           <NuxtLink
             v-if="popularTags && popularTags.length > 0"
             :to="`/tag/${encodeURIComponent(popularTags[0].name)}`"
-            class="rounded-full bg-ink-900 px-4 py-2 text-sm bg-black font-semibold text-white shadow-soft"
+            class="rounded-full px-4 py-2 text-sm bg-black font-semibold text-white shadow-soft"
           >
             #{{ popularTags[0].name }}
           </NuxtLink>
@@ -87,7 +87,9 @@
       <!-- Categories -->
       <div class="lg:col-span-2 bg-white border border-ink-100 rounded-xl p-6">
         <h2 class="text-xl font-semibold text-ink-900 mb-4">หมวดหมู่ (Categories)</h2>
-        <div v-if="catsPending" class="text-ink-600">กำลังโหลดหมวดหมู่...</div>
+        <div v-if="catsPending" class="flex flex-wrap gap-3">
+          <ChipSkeleton v-for="i in 8" :key="`cat-s-${i}`" />
+        </div>
         <div v-else class="flex flex-wrap gap-3">
           <NuxtLink
             v-for="c in categories"
@@ -104,7 +106,9 @@
       <!-- Popular Tags -->
       <div class="bg-white border border-ink-100 rounded-xl p-6">
         <h2 class="text-xl font-semibold text-ink-900 mb-4">แท็กยอดนิยม (Popular Tags)</h2>
-        <div v-if="tagsPending" class="text-ink-600">กำลังโหลดแท็ก...</div>
+        <div v-if="tagsPending" class="flex flex-wrap gap-2">
+          <ChipSkeleton v-for="i in 12" :key="`tag-s-${i}`" />
+        </div>
         <div v-else class="flex flex-wrap gap-2">
           <NuxtLink
             v-for="t in popularTags"
@@ -249,18 +253,22 @@ const activeTag = computed(() => (route.query.tag as string) || null)
 const categorySlug = computed(() => route.query.category as string)
 const tagSlug = computed(() => route.query.tag as string)
 
-// Fetch posts
-const { data: postsData, pending, error } = await useFetch('/api/posts', {
-  query: {
-    page: currentPage,
-    category: categorySlug,
-    tag: tagSlug
-  },
-  key: 'posts'
+// Fetch posts or search results
+const hasQueryQ = computed(() => !!(route.query.q as string))
+const endpoint = computed(() => (hasQueryQ.value ? '/api/search' : '/api/posts'))
+const fetchQuery = computed(() => {
+  if (hasQueryQ.value) {
+    return { q: route.query.q as string, page: currentPage.value }
+  }
+  return { page: currentPage.value, category: categorySlug.value, tag: tagSlug.value }
+})
+const { data: postsData, pending, error } = await useFetch(endpoint, {
+  query: fetchQuery,
+  key: () => (hasQueryQ.value ? `search-${route.query.q}-${currentPage.value}` : `posts-${currentPage.value}-${categorySlug.value || ''}-${tagSlug.value || ''}`)
 })
 
-const posts = computed(() => postsData.value?.posts || [])
-const totalPages = computed(() => postsData.value?.totalPages || 1)
+const posts = computed(() => postsData?.value?.posts || [])
+const totalPages = computed(() => postsData?.value?.totalPages || 1)
 
 // Fetch categories & tags for sidebar blocks
 const { data: catsData, pending: catsPending } = await useFetch('/api/categories', { key: 'categories' })
@@ -282,9 +290,13 @@ function formatDate(dateString: string) {
 }
 
 // Quick filters state
-const searchTerm = ref('')
+const searchTerm = ref<string>((route.query.q as string) || '')
 const filterCategory = ref('')
 const filterTag = ref('')
+
+watch(() => route.query.q, (q) => {
+  searchTerm.value = (q as string) || ''
+})
 
 // Featured and filtered posts
 const featuredPost = computed(() => {
@@ -315,6 +327,7 @@ const filteredPosts = computed(() => {
 <style scoped>
 .line-clamp-2 {
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -322,6 +335,7 @@ const filteredPosts = computed(() => {
 
 .line-clamp-3 {
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
