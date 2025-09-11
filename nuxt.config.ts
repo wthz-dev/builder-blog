@@ -3,20 +3,19 @@ export default defineNuxtConfig({
   // Ensure Nuxt uses project root as source (not app/)
   srcDir: '.',
   dir: {
-    pages: 'pages'
+    pages: 'pages',
   },
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
   app: {
     head: {
-      link: [
-        { rel: 'manifest', href: '/manifest.webmanifest' }
-      ],
+      link: [{ rel: 'manifest', href: '/manifest.webmanifest' }],
       meta: [
-        { name: 'theme-color', content: '#ffffff' }
-      ]
-    }
+        { name: 'theme-color', content: '#ffffff' },
+        // Google Search Console verification (set env NUXT_PUBLIC_GSC_VERIFICATION)
+      ],
+    },
   },
 
   // Global styles
@@ -34,19 +33,21 @@ export default defineNuxtConfig({
     public: {
       siteUrl:
         process.env.NODE_ENV === 'production'
-          ? (process.env.NUXT_PUBLIC_SITE_URL || 'https://whitebikevibes.space')
+          ? process.env.NUXT_PUBLIC_SITE_URL || 'https://whitebikevibes.space'
           : 'http://localhost:3000',
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
       adsensePublisherId: process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID || '',
-      gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || ''
-    }
+      gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || '',
+      // optional: Google Search Console verification token
+      // e.g. NUXT_PUBLIC_GSC_VERIFICATION="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
   },
 
   modules: [
     // Minimal set needed for our UI
     '@nuxt/image',
     '@pinia/nuxt',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
   ],
 
   // PostCSS configuration

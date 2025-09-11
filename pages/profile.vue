@@ -14,7 +14,26 @@
           กำลังโหลดข้อมูลผู้ใช้...
         </div>
 
-        <div v-else class="space-y-4">
+        <div v-else class="space-y-6">
+          <!-- Avatar -->
+          <div class="flex items-center gap-4">
+            <img :src="user.avatarUrl || '/favicon.ico'" alt="avatar" class="h-16 w-16 rounded-full object-cover border border-ink-200" />
+            <div>
+              <label class="block text-sm text-ink-700 mb-1">อัปโหลดรูปโปรไฟล์</label>
+              <div class="flex items-center gap-2">
+                <input ref="fileInput" type="file" accept="image/*" class="text-sm" @change="onFileChange" />
+                <button
+                  class="px-3 py-1.5 rounded-lg border border-ink-200 hover:bg-ink-50 text-sm disabled:opacity-60"
+                  :disabled="uploading"
+                  @click="triggerPick"
+                  type="button"
+                >เลือกไฟล์</button>
+                <span v-if="uploading" class="text-sm text-ink-600">กำลังอัปโหลด...</span>
+              </div>
+              <p v-if="uploadError" class="text-sm text-red-600 mt-1">{{ uploadError }}</p>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p class="text-sm text-ink-800">ชื่อ</p>
@@ -47,11 +66,40 @@
 
 <script setup lang="ts">
 import { useSeoMeta } from 'nuxt/app'
+import { onMounted } from 'vue'
 import { useAuth } from '../composables/useAuth'
 // บังคับต้องล็อกอินก่อนเข้าหน้านี้
 definePageMeta({ middleware: 'auth' })
 
 const { user, checkAuth, logout } = useAuth()
+const fileInput = ref<HTMLInputElement | null>(null)
+const uploading = ref(false)
+const uploadError = ref<string | null>(null)
+
+function triggerPick() { fileInput.value?.click() }
+async function onFileChange(e: Event) {
+  uploadError.value = null
+  const input = e.target as HTMLInputElement
+  const file = input?.files?.[0]
+  if (!file) return
+  if (file.size > 2 * 1024 * 1024) { // 2MB limit
+    uploadError.value = 'ไฟล์ใหญ่เกินไป (จำกัด 2MB)'
+    return
+  }
+  uploading.value = true
+  try {
+    const fd = new FormData()
+    fd.set('file', file)
+    const res: any = await $fetch('/api/profile/avatar', { method: 'POST', body: fd })
+    // refresh user
+    await checkAuth()
+  } catch (err: any) {
+    uploadError.value = err?.data?.statusMessage || err?.message || 'อัปโหลดไม่สำเร็จ'
+  } finally {
+    uploading.value = false
+    if (fileInput.value) fileInput.value.value = ''
+  }
+}
 
 // SEO Meta
 useSeoMeta({
@@ -63,8 +111,10 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
-// รองรับการรีเฟรชหน้า (SSR/CSR)
-if (!user.value) {
-  await checkAuth()
-}
+// รองรับการรีเฟรชหน้า (CSR)
+onMounted(async () => {
+  if (!user.value) {
+    await checkAuth()
+  }
+})
 </script>

@@ -18,6 +18,7 @@ model User {
   name      String
   password  String
   role      Role     @default(USER)
+  avatarUrl String?
   posts     Post[]
   comments  Comment[]
   createdAt DateTime @default(now())
