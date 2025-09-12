@@ -31,12 +31,28 @@ const posts = ref<any[]>([])
 const pending = ref(true)
 const error = ref<string | null>(null)
 
+const runtime = useRuntimeConfig()
+const siteUrl = (runtime.public as any)?.siteUrl || ''
+const canonicalUrl = computed(() => `${siteUrl}/tag/${encodeURIComponent(decodedName.value)}`)
+const ogImage = computed(() => `${siteUrl}/og-image.jpg`)
+const twitterSite = (runtime.public as any)?.twitterSite || '@whitez52'
+const twitterCreator = (runtime.public as any)?.twitterCreator || '@whitez52'
+
 useSeoMeta({
   title: () => decodedName.value ? `แท็ก: #${decodedName.value} • WhiteBikeVibes` : 'แท็ก • WhiteBikeVibes',
   description: () => `บทความทั้งหมดในแท็ก #${decodedName.value}`,
   ogTitle: () => decodedName.value ? `แท็ก: #${decodedName.value} • WhiteBikeVibes` : 'แท็ก • WhiteBikeVibes',
   ogDescription: () => `บทความทั้งหมดในแท็ก #${decodedName.value}`,
+  ogUrl: () => canonicalUrl.value,
+  ogImage: () => ogImage.value,
+  ogImageAlt: () => decodedName.value ? `Tag ${decodedName.value}` : 'Tags',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => ogImage.value,
+  twitterSite,
+  twitterCreator
 })
+
+// Removed useHead to prevent HMR dispose errors
 
 const { data, pending: p, error: e } = useAsyncData(() => `tag-${decodedName.value}`, async () => {
   if (!decodedName.value) return { posts: [] }

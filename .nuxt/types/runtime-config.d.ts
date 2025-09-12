@@ -32,6 +32,10 @@ import { RuntimeConfig as UserRuntimeConfig, PublicRuntimeConfig as UserPublicRu
    adsensePublisherId: string,
 
    gaMeasurementId: string,
+
+   twitterSite: string,
+
+   twitterCreator: string,
   }
 declare module '@nuxt/schema' {
   interface RuntimeConfig extends UserRuntimeConfig {}

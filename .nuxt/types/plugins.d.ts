@@ -26,6 +26,7 @@ type NuxtAppInjections =
   InjectionType<typeof import("../../plugins/adsense.client")> &
   InjectionType<typeof import("../../plugins/auth.client")> &
   InjectionType<typeof import("../../plugins/gtag.client")> &
+  InjectionType<typeof import("../../plugins/nprogress.client")> &
   InjectionType<typeof import("../../plugins/sw.client")> &
   InjectionType<typeof import("../../plugins/theme.client")>
 

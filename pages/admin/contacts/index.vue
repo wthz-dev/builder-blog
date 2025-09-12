@@ -62,6 +62,7 @@ import { useAuth } from '~/composables/useAuth'
 definePageMeta({ middleware: 'auth' })
 
 const { user } = useAuth()
+useSeoMeta({ robots: 'noindex, nofollow', title: 'จัดการการติดต่อ • Admin' })
 const route = useRoute()
 const page = computed(() => parseInt(String(route.query.page || '1')) || 1)
 

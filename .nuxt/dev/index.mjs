@@ -4,9 +4,10 @@ import { Server } from 'node:http';
 import { resolve, dirname, join } from 'node:path';
 import nodeCrypto, { createHash } from 'node:crypto';
 import { parentPort, threadId } from 'node:worker_threads';
-import { escapeHtml } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/@vue/shared/dist/shared.cjs.js';
+import { escapeHtml as escapeHtml$1 } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/@vue/shared/dist/shared.cjs.js';
 import jwt from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/jsonwebtoken/index.js';
 import bcrypt from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/bcryptjs/index.js';
+import { promises } from 'node:fs';
 import { PrismaClient } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/@prisma/client/default.js';
 import { createRenderer, getRequestDependencies, getPreloadLinks, getPrefetchLinks } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/vue-bundle-renderer/dist/runtime.mjs';
 import { parseURL, withoutBase, joinURL, getQuery, withQuery, withTrailingSlash, decodePath, withLeadingSlash, withoutTrailingSlash, joinRelativeURL } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/ufo/dist/index.mjs';
@@ -31,7 +32,6 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { stringify, uneval } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/devalue/index.js';
 import { captureRawStackTrace, parseRawStackTrace } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/errx/dist/index.js';
 import { isVNode, toValue, isRef } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/vue/index.mjs';
-import { promises } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname as dirname$1, resolve as resolve$1, isAbsolute } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/pathe/dist/index.mjs';
 import { createHead as createHead$1, propsToString, renderSSRHead } from 'file:///Users/worksDev/GitHub/builder-blog/node_modules/unhead/dist/server.mjs';
@@ -654,7 +654,9 @@ const _inlineRuntimeConfig = {
     "siteUrl": "http://localhost:3000",
     "apiBase": "/api",
     "adsensePublisherId": "8698914796866389",
-    "gaMeasurementId": "G-BSXZB2GPVK"
+    "gaMeasurementId": "G-BSXZB2GPVK",
+    "twitterSite": "@whitez52",
+    "twitterCreator": "@whitez52"
   },
   "jwtSecret": "1de0cef28e8f0fe530e3d9c95afde186",
   "databaseUrl": "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza18tQ3lqM0VzNUpkUzlrd2IzamRyU2ciLCJhcGlfa2V5IjoiMDFLNE1CRk5GS1JUTTZRNlJROEdKNkZQQ1giLCJ0ZW5hbnRfaWQiOiJkNGU1OTMxNWY0ZTkxYTc4ZTgyOTc5ZWMzYzIxMjczZGQ4OTJhNDA3M2VmMTEyNjM0NzhiMWZkYjc4MWIzNmNkIiwiaW50ZXJuYWxfc2VjcmV0IjoiMmM4NmMyYWItMjBmOS00NWEwLWE3OWEtMGExOTljY2M0NjAxIn0.HrR2uF-1f6rXkcyi27u2k7Ys1rAf2U-zHK74e6X1ZjM",
@@ -1665,6 +1667,7 @@ const _lazy_uR1GqI = () => Promise.resolve().then(function () { return index_get
 const _lazy_ZgmDNQ = () => Promise.resolve().then(function () { return avatar_post$1; });
 const _lazy_vEar24 = () => Promise.resolve().then(function () { return search_get$1; });
 const _lazy_xdEQ6A = () => Promise.resolve().then(function () { return tags_get$1; });
+const _lazy_gjc94e = () => Promise.resolve().then(function () { return feed_xml$1; });
 const _lazy_C_KWjT = () => Promise.resolve().then(function () { return sitemap_xml$1; });
 const _lazy_CFOwPR = () => Promise.resolve().then(function () { return renderer$1; });
 
@@ -1689,6 +1692,7 @@ const handlers = [
   { route: '/api/profile/avatar', handler: _lazy_ZgmDNQ, lazy: true, middleware: false, method: "post" },
   { route: '/api/search', handler: _lazy_vEar24, lazy: true, middleware: false, method: "get" },
   { route: '/api/tags', handler: _lazy_xdEQ6A, lazy: true, middleware: false, method: "get" },
+  { route: '/feed.xml', handler: _lazy_gjc94e, lazy: true, middleware: false, method: undefined },
   { route: '/sitemap.xml', handler: _lazy_C_KWjT, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_error', handler: _lazy_CFOwPR, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
@@ -1926,7 +1930,7 @@ async function shutdown() {
 const _messages = { "appName": "Nuxt", "statusCode": 500, "statusMessage": "Server error", "description": "An error occurred in the application and the page could not be served.", "stack": "" };
 const template$1 = (messages) => {
   messages = { ..._messages, ...messages };
-  return '<!DOCTYPE html><html lang="en"><head><title>' + escapeHtml(messages.statusCode) + " - " + escapeHtml(messages.statusMessage || "Internal Server Error") + `</title><meta charset="utf-8"><meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0" name="viewport"><script>!function(){const e=document.createElement("link").relList;if(!(e&&e.supports&&e.supports("modulepreload"))){for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver(e=>{for(const o of e)if("childList"===o.type)for(const e of o.addedNodes)"LINK"===e.tagName&&"modulepreload"===e.rel&&r(e)}).observe(document,{childList:!0,subtree:!0})}function r(e){if(e.ep)return;e.ep=!0;const r=function(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerPolicy&&(r.referrerPolicy=e.referrerPolicy),"use-credentials"===e.crossOrigin?r.credentials="include":"anonymous"===e.crossOrigin?r.credentials="omit":r.credentials="same-origin",r}(e);fetch(e.href,r)}}();<\/script><style>*,:after,:before{border-color:var(--un-default-border-color,#e5e7eb);border-style:solid;border-width:0;box-sizing:border-box}:after,:before{--un-content:""}html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-moz-tab-size:4;tab-size:4;-webkit-tap-highlight-color:transparent}body{line-height:inherit;margin:0}h1{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}h1,p{margin:0}*,:after,:before{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }.absolute{position:absolute}.top-6{top:1.5rem}.z-10{z-index:10}.mx-auto{margin-left:auto;margin-right:auto}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.inline-block{display:inline-block}.h-auto{height:auto}.min-h-screen{min-height:100vh}.flex{display:flex}.flex-1{flex:1 1 0%}.flex-col{flex-direction:column}.overflow-y-auto{overflow-y:auto}.border{border-width:1px}.border-b-0{border-bottom-width:0}.border-black\\/5{border-color:#0000000d}.rounded-t-md{border-top-left-radius:.375rem;border-top-right-radius:.375rem}.bg-gray-50\\/50{background-color:#f5f5f580}.bg-white{--un-bg-opacity:1;background-color:rgb(255 255 255/var(--un-bg-opacity))}.p-8{padding:2rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.pt-12{padding-top:3rem}.text-6xl{font-size:3.75rem;line-height:1}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-black{--un-text-opacity:1;color:rgb(0 0 0/var(--un-text-opacity))}.hover\\:text-\\[\\#00DC82\\]:hover{--un-text-opacity:1;color:rgb(0 220 130/var(--un-text-opacity))}.font-light{font-weight:300}.font-medium{font-weight:500}.leading-tight{line-height:1.25}.font-sans{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji}.hover\\:underline:hover{text-decoration-line:underline}.underline-offset-3{text-underline-offset:3px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}@media (prefers-color-scheme:dark){.dark\\:border-white\\/10{border-color:#ffffff1a}.dark\\:bg-\\[\\#020420\\]{--un-bg-opacity:1;background-color:rgb(2 4 32/var(--un-bg-opacity))}.dark\\:bg-white\\/5{background-color:#ffffff0d}.dark\\:text-white{--un-text-opacity:1;color:rgb(255 255 255/var(--un-text-opacity))}}@media (min-width:640px){.sm\\:right-6{right:1.5rem}.sm\\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\\:text-8xl{font-size:6rem;line-height:1}}</style></head><body class="antialiased bg-white dark:bg-[#020420] dark:text-white flex flex-col font-sans min-h-screen pt-12 px-10 text-black"><h1 class="font-medium mb-4 sm:text-8xl text-6xl">` + escapeHtml(messages.statusCode) + '</h1><p class="font-light leading-tight mb-8 sm:text-2xl text-xl">' + escapeHtml(messages.description) + '</p><a href="https://nuxt.com/docs/getting-started/error-handling?utm_source=nuxt-error-dev-page" target="_blank" class="absolute font-medium hover:text-[#00DC82] hover:underline inline-block mx-auto sm:right-6 text-sm top-6 underline-offset-3">Customize this page</a><div class="bg-gray-50/50 border border-b-0 border-black/5 dark:bg-white/5 dark:border-white/10 flex-1 h-auto overflow-y-auto rounded-t-md"><div class="font-light leading-tight p-8 text-xl z-10">' + escapeHtml(messages.stack) + "</div></div></body></html>";
+  return '<!DOCTYPE html><html lang="en"><head><title>' + escapeHtml$1(messages.statusCode) + " - " + escapeHtml$1(messages.statusMessage || "Internal Server Error") + `</title><meta charset="utf-8"><meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0" name="viewport"><script>!function(){const e=document.createElement("link").relList;if(!(e&&e.supports&&e.supports("modulepreload"))){for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver(e=>{for(const o of e)if("childList"===o.type)for(const e of o.addedNodes)"LINK"===e.tagName&&"modulepreload"===e.rel&&r(e)}).observe(document,{childList:!0,subtree:!0})}function r(e){if(e.ep)return;e.ep=!0;const r=function(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerPolicy&&(r.referrerPolicy=e.referrerPolicy),"use-credentials"===e.crossOrigin?r.credentials="include":"anonymous"===e.crossOrigin?r.credentials="omit":r.credentials="same-origin",r}(e);fetch(e.href,r)}}();<\/script><style>*,:after,:before{border-color:var(--un-default-border-color,#e5e7eb);border-style:solid;border-width:0;box-sizing:border-box}:after,:before{--un-content:""}html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-moz-tab-size:4;tab-size:4;-webkit-tap-highlight-color:transparent}body{line-height:inherit;margin:0}h1{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}h1,p{margin:0}*,:after,:before{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }.absolute{position:absolute}.top-6{top:1.5rem}.z-10{z-index:10}.mx-auto{margin-left:auto;margin-right:auto}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.inline-block{display:inline-block}.h-auto{height:auto}.min-h-screen{min-height:100vh}.flex{display:flex}.flex-1{flex:1 1 0%}.flex-col{flex-direction:column}.overflow-y-auto{overflow-y:auto}.border{border-width:1px}.border-b-0{border-bottom-width:0}.border-black\\/5{border-color:#0000000d}.rounded-t-md{border-top-left-radius:.375rem;border-top-right-radius:.375rem}.bg-gray-50\\/50{background-color:#f5f5f580}.bg-white{--un-bg-opacity:1;background-color:rgb(255 255 255/var(--un-bg-opacity))}.p-8{padding:2rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.pt-12{padding-top:3rem}.text-6xl{font-size:3.75rem;line-height:1}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-black{--un-text-opacity:1;color:rgb(0 0 0/var(--un-text-opacity))}.hover\\:text-\\[\\#00DC82\\]:hover{--un-text-opacity:1;color:rgb(0 220 130/var(--un-text-opacity))}.font-light{font-weight:300}.font-medium{font-weight:500}.leading-tight{line-height:1.25}.font-sans{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji}.hover\\:underline:hover{text-decoration-line:underline}.underline-offset-3{text-underline-offset:3px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}@media (prefers-color-scheme:dark){.dark\\:border-white\\/10{border-color:#ffffff1a}.dark\\:bg-\\[\\#020420\\]{--un-bg-opacity:1;background-color:rgb(2 4 32/var(--un-bg-opacity))}.dark\\:bg-white\\/5{background-color:#ffffff0d}.dark\\:text-white{--un-text-opacity:1;color:rgb(255 255 255/var(--un-text-opacity))}}@media (min-width:640px){.sm\\:right-6{right:1.5rem}.sm\\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\\:text-8xl{font-size:6rem;line-height:1}}</style></head><body class="antialiased bg-white dark:bg-[#020420] dark:text-white flex flex-col font-sans min-h-screen pt-12 px-10 text-black"><h1 class="font-medium mb-4 sm:text-8xl text-6xl">` + escapeHtml$1(messages.statusCode) + '</h1><p class="font-light leading-tight mb-8 sm:text-2xl text-xl">' + escapeHtml$1(messages.description) + '</p><a href="https://nuxt.com/docs/getting-started/error-handling?utm_source=nuxt-error-dev-page" target="_blank" class="absolute font-medium hover:text-[#00DC82] hover:underline inline-block mx-auto sm:right-6 text-sm top-6 underline-offset-3">Customize this page</a><div class="bg-gray-50/50 border border-b-0 border-black/5 dark:bg-white/5 dark:border-white/10 flex-1 h-auto overflow-y-auto rounded-t-md"><div class="font-light leading-tight p-8 text-xl z-10">' + escapeHtml$1(messages.stack) + "</div></div></body></html>";
 };
 
 const errorDev = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
@@ -2912,6 +2916,7 @@ const index_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.definePropert
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const avatar_post = defineEventHandler(async (event) => {
+  var _a;
   try {
     const config = useRuntimeConfig();
     const token = getCookie(event, "auth-token");
@@ -2925,36 +2930,56 @@ const avatar_post = defineEventHandler(async (event) => {
     if (!form || form.length === 0) throw createError({ statusCode: 400, statusMessage: "No file uploaded" });
     const filePart = form.find((p) => p.name === "file");
     if (!filePart || !filePart.data) throw createError({ statusCode: 400, statusMessage: "Missing file field" });
+    const maxBytes = 2 * 1024 * 1024;
+    if (filePart.data.length > maxBytes) {
+      throw createError({ statusCode: 413, statusMessage: "File too large (max 2MB)" });
+    }
     const cloudName = config.cloudinaryCloudName;
     const apiKey = config.cloudinaryApiKey;
     const apiSecret = config.cloudinaryApiSecret;
-    if (!cloudName || !apiKey || !apiSecret) {
-      throw createError({ statusCode: 500, statusMessage: "Cloudinary is not configured" });
+    let avatarUrl;
+    if (cloudName && apiKey && apiSecret) {
+      const timestamp = Math.floor(Date.now() / 1e3);
+      const folder = "wbv_avatars";
+      const publicId = `user_${userId}`;
+      const signParams = {
+        folder,
+        overwrite: "true",
+        public_id: publicId,
+        timestamp: String(timestamp)
+      };
+      const paramsToSign = Object.keys(signParams).sort().map((k) => `${k}=${signParams[k]}`).join("&");
+      const signature = nodeCrypto.createHash("sha1").update(paramsToSign + apiSecret).digest("hex");
+      const fd = new FormData();
+      const blob = new Blob([filePart.data], { type: filePart.type || "application/octet-stream" });
+      fd.set("file", blob, filePart.filename || "avatar");
+      fd.set("api_key", apiKey);
+      fd.set("timestamp", String(timestamp));
+      fd.set("signature", signature);
+      fd.set("folder", folder);
+      fd.set("public_id", publicId);
+      fd.set("overwrite", "true");
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      const res = await fetch(uploadUrl, { method: "POST", body: fd });
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Cloudinary upload failed:", text);
+        throw createError({ statusCode: 502, statusMessage: "Upload failed" });
+      }
+      const payload = await res.json();
+      avatarUrl = payload.secure_url;
+      if (!avatarUrl) throw createError({ statusCode: 502, statusMessage: "Upload response invalid" });
+    } else {
+      const uploadsDir = join(process.cwd(), "public", "uploads", "avatars");
+      await promises.mkdir(uploadsDir, { recursive: true });
+      const original = filePart.filename;
+      const safeBase = `user_${userId}`;
+      const ext = (original == null ? void 0 : original.includes(".")) ? `.${(_a = original.split(".").pop()) == null ? void 0 : _a.toLowerCase()}` : "";
+      const filename = `${safeBase}${ext || ".jpg"}`;
+      const absPath = join(uploadsDir, filename);
+      await promises.writeFile(absPath, filePart.data);
+      avatarUrl = `/uploads/avatars/${filename}`;
     }
-    const timestamp = Math.floor(Date.now() / 1e3);
-    const folder = "wbv_avatars";
-    const publicId = `user_${userId}`;
-    const paramsToSign = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
-    const signature = nodeCrypto.createHash("sha1").update(paramsToSign + apiSecret).digest("hex");
-    const fd = new FormData();
-    const blob = new Blob([filePart.data], { type: filePart.type || "application/octet-stream" });
-    fd.set("file", blob, filePart.filename || "avatar");
-    fd.set("api_key", apiKey);
-    fd.set("timestamp", String(timestamp));
-    fd.set("signature", signature);
-    fd.set("folder", folder);
-    fd.set("public_id", publicId);
-    fd.set("overwrite", "true");
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    const res = await fetch(uploadUrl, { method: "POST", body: fd });
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Cloudinary upload failed:", text);
-      throw createError({ statusCode: 502, statusMessage: "Upload failed" });
-    }
-    const payload = await res.json();
-    const avatarUrl = payload.secure_url;
-    if (!avatarUrl) throw createError({ statusCode: 502, statusMessage: "Upload response invalid" });
     const updated = await prisma.user.update({ where: { id: userId }, data: { avatarUrl }, select: { id: true, name: true, email: true, role: true, avatarUrl: true } });
     return { user: updated };
   } catch (error) {
@@ -3033,6 +3058,50 @@ const tags_get = defineEventHandler(async () => {
 const tags_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: tags_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const feed_xml = defineEventHandler(async (event) => {
+  var _a;
+  setHeader(event, "Content-Type", "application/rss+xml; charset=utf-8");
+  const runtime = useRuntimeConfig();
+  const siteUrl = ((_a = runtime.public) == null ? void 0 : _a.siteUrl) || "http://localhost:3000";
+  const posts = await prisma.post.findMany({
+    orderBy: { publishedAt: "desc" },
+    take: 50,
+    select: { id: true, title: true, excerpt: true, slug: true, publishedAt: true }
+  });
+  const items = posts.map((p) => {
+    const link = `${siteUrl}/post/${encodeURIComponent(p.slug)}`;
+    const pub = new Date(p.publishedAt).toUTCString();
+    const description = escapeHtml(p.excerpt || "");
+    return `
+    <item>
+      <title>${escapeHtml(p.title || "")}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
+      <pubDate>${pub}</pubDate>
+      <description><![CDATA[${description}]]></description>
+    </item>`;
+  }).join("\n");
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+  <rss version="2.0">
+    <channel>
+      <title>WhiteBikeVibes</title>
+      <link>${siteUrl}</link>
+      <description>WhiteBikeVibes | Bigbike + Dev Lifestyle</description>
+      <language>th-TH</language>
+      ${items}
+    </channel>
+  </rss>`;
+  return rss;
+});
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+const feed_xml$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: feed_xml
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const sitemap_xml = defineEventHandler(async (event) => {

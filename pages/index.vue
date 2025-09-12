@@ -215,6 +215,7 @@
         <p class="text-ink-600">ยังไม่มีบทความในขณะนี้</p>
       </div>
     </section>
+    
   </div>
 </template>
 
@@ -224,6 +225,8 @@ const runtime = useRuntimeConfig()
 const siteUrl = (runtime.public as any)?.siteUrl || ''
 const canonicalUrl = computed(() => `${siteUrl}/`)
 const ogImage = computed(() => `${siteUrl}/og-image.jpg`)
+const twitterSite = (runtime.public as any)?.twitterSite || '@whitez52'
+const twitterCreator = (runtime.public as any)?.twitterCreator || '@whitez52'
 
 useSeoMeta({
   title: 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
@@ -232,11 +235,44 @@ useSeoMeta({
   ogDescription: 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
   ogUrl: () => canonicalUrl.value,
   ogImage: () => ogImage.value,
+  ogImageAlt: 'WhiteBikeVibes cover image',
   twitterCard: 'summary_large_image',
   twitterImage: () => ogImage.value,
+  twitterSite,
+  twitterCreator,
 })
 
-useHead({ link: [{ rel: 'canonical', href: canonicalUrl.value }] })
+// Add canonical link directly in template
+const canonicalHref = computed(() => {
+  const cp = currentPage.value
+  return cp > 1 ? `${siteUrl}/?page=${cp}` : `${siteUrl}/`
+})
+
+// Add breadcrumb schema
+const breadcrumbSchema = computed(() => JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'หน้าแรก', item: `${siteUrl}/` },
+    ...(currentPage.value > 1
+      ? [{ '@type': 'ListItem', position: 2, name: `หน้า ${currentPage.value}`, item: `${siteUrl}/?page=${currentPage.value}` }]
+      : [])
+  ]
+}))
+
+// Temporarily remove useHead scripts to prevent dispose error
+// TODO: Find alternative solution for JSON-LD and canonical
+// useHead(() => ({
+//   link: [
+//     { rel: 'canonical', href: canonicalHref.value }
+//   ],
+//   script: [
+//     {
+//       type: 'application/ld+json',
+//       innerHTML: breadcrumbSchema.value
+//     }
+//   ]
+// }))
 
 // Analytics helpers
 const { click: gClick } = useGtag()
