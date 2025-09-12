@@ -58,6 +58,9 @@ declare module "nitropack/types" {
     '/api/tags': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/tags.get').default>>>>
     }
+    '/feed.xml': {
+      'default': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/routes/feed.xml').default>>>>
+    }
     '/sitemap.xml': {
       'default': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/routes/sitemap.xml').default>>>>
     }

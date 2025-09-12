@@ -140,6 +140,7 @@
         </section>
       </div>
     </article>
+    
   </div>
 </template>
 
@@ -170,48 +171,68 @@ const absoluteCoverImage = computed(() => {
 
 // SEO Meta - Dynamic based on post data
 useSeoMeta({
-  title: () => post.value ? `${post.value.title} • WhiteBikeVibes` : 'กำลังโหลด...',
-  ogTitle: () => post.value ? `${post.value.title} • WhiteBikeVibes` : 'กำลังโหลด...',
-  description: () => post.value?.excerpt || 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
-  ogDescription: () => post.value?.excerpt || 'WhiteBikeVibes | Bigbike + Dev Lifestyle',
+  title: () => post.value?.title || 'กำลังโหลด...',
+  description: () => post.value?.excerpt || '',
+  ogTitle: () => post.value?.title || '',
+  ogDescription: () => post.value?.excerpt || '',
+  ogImage: () => post.value?.coverImageUrl || '/og-image.jpg',
   ogUrl: () => canonicalUrl.value,
-  ogImage: () => absoluteCoverImage.value,
-  ogType: 'article',
-  articlePublishedTime: () => post.value?.publishedAt,
   twitterCard: 'summary_large_image',
-  twitterImage: () => absoluteCoverImage.value,
+  twitterSite: () => (runtime.public as any)?.twitterSite || '@whitebikevibes',
+  twitterCreator: () => (runtime.public as any)?.twitterCreator || '@whitebikevibes'
 })
 
-// Structured data for SEO (JSON-LD)
-useHead({
-  link: [
-    { rel: 'canonical', href: canonicalUrl.value }
-  ],
-  script: [
-    {
-      type: 'application/ld+json',
-      innerHTML: () => post.value
-        ? JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.value.title,
-            description: post.value.excerpt,
-            image: absoluteCoverImage.value,
-            datePublished: post.value.publishedAt,
-            dateModified: post.value.publishedAt,
-            author: {
-              '@type': 'Person',
-              name: post.value.author?.name || post.value.author || 'Author'
-            },
-            publisher: {
-              '@type': 'Organization',
-              name: 'WhiteBikeVibes',
-              logo: { '@type': 'ImageObject', url: (runtime.public as any)?.siteUrl ? `${(runtime.public as any).siteUrl}/og-image.jpg` : '/og-image.jpg' }
-            }
-          })
-        : ''
+// Temporarily remove useHead scripts to prevent dispose error
+// TODO: Find alternative solution for JSON-LD and canonical
+// useHead(() => ({
+//   link: [
+//     { rel: 'canonical', href: canonicalUrl.value }
+//   ],
+//   script: [
+//     ...(postSchema.value ? [{
+//       type: 'application/ld+json',
+//       innerHTML: postSchema.value
+//     }] : []),
+//     ...(postBreadcrumbSchema.value ? [{
+//       type: 'application/ld+json', 
+//       innerHTML: postBreadcrumbSchema.value
+//     }] : [])
+//   ]
+// }))
+
+// Add canonical link and JSON-LD directly in template
+const postSchema = computed(() => {
+  if (!post.value) return ''
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.value.title,
+    description: post.value.excerpt,
+    image: absoluteCoverImage.value,
+    datePublished: post.value.publishedAt,
+    dateModified: post.value.publishedAt,
+    author: {
+      '@type': 'Person',
+      name: post.value.author?.name || post.value.author || 'Author'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'WhiteBikeVibes',
+      logo: { '@type': 'ImageObject', url: (runtime.public as any)?.siteUrl ? `${(runtime.public as any).siteUrl}/og-image.jpg` : '/og-image.jpg' }
     }
-  ]
+  })
+})
+
+const postBreadcrumbSchema = computed(() => {
+  if (!post.value) return ''
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'หน้าแรก', item: (runtime.public as any)?.siteUrl || '/' },
+      { '@type': 'ListItem', position: 2, name: post.value.title, item: canonicalUrl.value }
+    ]
+  })
 })
 
 // Submit comment

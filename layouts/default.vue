@@ -1,9 +1,6 @@
 <template>
-  <div class="min-h-screen bg-white text-ink-900 dark:bg-ink-900 dark:text-ink-100 transition-colors">
-    <!-- Navigation -->
+  <div class="min-h-screen bg-ink-50 dark:bg-ink-900">
     <NavBar />
-
-    <!-- Main Content -->
     <main>
       <slot />
     </main>
@@ -49,7 +46,10 @@
           </div>
         </div>
         <div class="border-t border-ink-200 mt-8 pt-8 text-center text-sm text-ink-600 dark:border-ink-800 dark:text-ink-300">
-          <p>&copy; {{ new Date().getFullYear() }} WhiteBikeVibes. All rights reserved.</p>
+          <p class="mb-2">&copy; {{ new Date().getFullYear() }} WhiteBikeVibes. All rights reserved.</p>
+          <p>
+            <a href="/feed.xml" class="underline hover:text-ink-900">RSS Feed</a>
+          </p>
         </div>
       </div>
     </footer>
@@ -58,4 +58,47 @@
 
 <script setup lang="ts">
 import NavBar from '~/components/NavBar.vue'
+import { useRuntimeConfig } from '#app'
+const runtime = useRuntimeConfig()
+const siteUrl = (runtime.public as any)?.siteUrl || ''
+
+const organizationSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'WhiteBikeVibes',
+  url: siteUrl,
+  logo: `${siteUrl}/og-image.jpg`,
+  sameAs: [
+    'https://www.tiktok.com/@whitez52',
+    'https://www.instagram.com/whitez52',
+    'https://www.facebook.com/torkait.sukpromote'
+  ]
+})
+
+const websiteSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'WhiteBikeVibes',
+  url: siteUrl,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${siteUrl}/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string'
+  }
+})
+
+// Temporarily remove useHead scripts to prevent dispose error
+// TODO: Find alternative solution for JSON-LD in layouts
+// useHead({
+//   script: [
+//     {
+//       type: 'application/ld+json',
+//       innerHTML: organizationSchema
+//     },
+//     {
+//       type: 'application/ld+json',
+//       innerHTML: websiteSchema
+//     }
+//   ]
+// })
 </script>

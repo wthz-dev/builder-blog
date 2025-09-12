@@ -33,7 +33,7 @@
           <template v-if="user">
             <div class="relative" @keydown.escape="menuOpen=false">
               <button class="flex items-center gap-2 rounded-full border border-ink-200 py-1 pl-1 pr-2 hover:bg-ink-50 text-ink-700" @click="menuOpen=!menuOpen">
-                <img src="/profile.svg" alt="Profile" class="h-8 w-8 rounded-full" />
+                <img :src="user.avatarUrl || '/profile.svg'" alt="Profile" class="h-8 w-8 rounded-full object-cover" />
                 <svg class="h-4 w-4 text-ink-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
               </button>
               <transition name="fade">

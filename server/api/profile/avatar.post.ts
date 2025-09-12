@@ -1,6 +1,8 @@
 import { prisma } from '~/lib/prisma'
 import jwt from 'jsonwebtoken'
 import crypto from 'node:crypto'
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,42 +23,69 @@ export default defineEventHandler(async (event) => {
     const filePart = form.find(p => p.name === 'file')
     if (!filePart || !filePart.data) throw createError({ statusCode: 400, statusMessage: 'Missing file field' })
 
+    // Server-side validation: max 2MB
+    const maxBytes = 2 * 1024 * 1024
+    if (filePart.data.length > maxBytes) {
+      throw createError({ statusCode: 413, statusMessage: 'File too large (max 2MB)' })
+    }
+
     const cloudName = config.cloudinaryCloudName as string | undefined
     const apiKey = config.cloudinaryApiKey as string | undefined
     const apiSecret = config.cloudinaryApiSecret as string | undefined
-    if (!cloudName || !apiKey || !apiSecret) {
-      throw createError({ statusCode: 500, statusMessage: 'Cloudinary is not configured' })
+    let avatarUrl: string | undefined
+
+    if (cloudName && apiKey && apiSecret) {
+      // Build signed params for Cloudinary
+      const timestamp = Math.floor(Date.now() / 1000)
+      const folder = 'wbv_avatars'
+      const publicId = `user_${userId}`
+      // Cloudinary signature must include ALL params being sent (except file, api_key), sorted alphabetically
+      const signParams: Record<string, string> = {
+        folder,
+        overwrite: 'true',
+        public_id: publicId,
+        timestamp: String(timestamp),
+      }
+      const paramsToSign = Object.keys(signParams)
+        .sort()
+        .map((k) => `${k}=${signParams[k]}`)
+        .join('&')
+      const signature = crypto.createHash('sha1').update(paramsToSign + apiSecret).digest('hex')
+
+      // Compose form-data for Cloudinary
+      const fd = new FormData()
+      // Node/FormData supports Buffer via Blob
+      const blob = new Blob([filePart.data], { type: (filePart as any).type || 'application/octet-stream' })
+      fd.set('file', blob, (filePart as any).filename || 'avatar')
+      fd.set('api_key', apiKey)
+      fd.set('timestamp', String(timestamp))
+      fd.set('signature', signature)
+      fd.set('folder', folder)
+      fd.set('public_id', publicId)
+      fd.set('overwrite', 'true')
+
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`
+      const res = await fetch(uploadUrl, { method: 'POST', body: fd as any })
+      if (!res.ok) {
+        const text = await res.text()
+        console.error('Cloudinary upload failed:', text)
+        throw createError({ statusCode: 502, statusMessage: 'Upload failed' })
+      }
+      const payload = await res.json() as any
+      avatarUrl = payload.secure_url as string | undefined
+      if (!avatarUrl) throw createError({ statusCode: 502, statusMessage: 'Upload response invalid' })
+    } else {
+      // Fallback: save to local filesystem under public/uploads/avatars
+      const uploadsDir = join(process.cwd(), 'public', 'uploads', 'avatars')
+      await fs.mkdir(uploadsDir, { recursive: true })
+      const original = (filePart as any).filename as string | undefined
+      const safeBase = `user_${userId}`
+      const ext = original?.includes('.') ? `.${original.split('.').pop()?.toLowerCase()}` : ''
+      const filename = `${safeBase}${ext || '.jpg'}`
+      const absPath = join(uploadsDir, filename)
+      await fs.writeFile(absPath, filePart.data)
+      avatarUrl = `/uploads/avatars/${filename}`
     }
-
-    // Build signed params for Cloudinary
-    const timestamp = Math.floor(Date.now() / 1000)
-    const folder = 'wbv_avatars'
-    const publicId = `user_${userId}`
-    const paramsToSign = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`
-    const signature = crypto.createHash('sha1').update(paramsToSign + apiSecret).digest('hex')
-
-    // Compose form-data for Cloudinary
-    const fd = new FormData()
-    // Node/FormData supports Buffer via Blob
-    const blob = new Blob([filePart.data], { type: (filePart as any).type || 'application/octet-stream' })
-    fd.set('file', blob, (filePart as any).filename || 'avatar')
-    fd.set('api_key', apiKey)
-    fd.set('timestamp', String(timestamp))
-    fd.set('signature', signature)
-    fd.set('folder', folder)
-    fd.set('public_id', publicId)
-    fd.set('overwrite', 'true')
-
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`
-    const res = await fetch(uploadUrl, { method: 'POST', body: fd as any })
-    if (!res.ok) {
-      const text = await res.text()
-      console.error('Cloudinary upload failed:', text)
-      throw createError({ statusCode: 502, statusMessage: 'Upload failed' })
-    }
-    const payload = await res.json() as any
-    const avatarUrl = payload.secure_url as string | undefined
-    if (!avatarUrl) throw createError({ statusCode: 502, statusMessage: 'Upload response invalid' })
 
     // Save to DB
     const updated = await prisma.user.update({ where: { id: userId }, data: { avatarUrl }, select: { id: true, name: true, email: true, role: true, avatarUrl: true } })
@@ -68,3 +97,4 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Failed to upload avatar' })
   }
 })
+

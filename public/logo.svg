@@ -1,15 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" class="h-12 w-auto">
-  <!-- Icon: abstract bike -->
-  <path d="M50 60c10-20 40-20 50 0s40 20 50 0" 
-        stroke="#e60012" stroke-width="6" fill="none" stroke-linecap="round"/>
-  <circle cx="50" cy="60" r="15" stroke="#000" stroke-width="6" fill="none"/>
-  <circle cx="150" cy="60" r="15" stroke="#000" stroke-width="6" fill="none"/>
-  
-  <!-- Text -->
-  <text x="200" y="70" font-family="Arial, Helvetica, sans-serif" 
-        font-weight="700" font-size="32" fill="#000">
-    White
-    <tspan fill="#e60012">Bike</tspan>
-    Vibes
+<!-- WBVibes — Shop-bag Style (Light) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 200" class="h-14 w-auto">
+  <!-- Bag -->
+  <g>
+    <rect x="20" y="48" rx="18" ry="18" width="140" height="110" fill="#e60012"/>
+    <!-- handle (แตกต่างจาก Shopee: วงรีคู่ + โค้งตื้น) -->
+    <path d="M45 60 C45 38, 135 38, 135 60" fill="none" stroke="#e60012" stroke-width="16" stroke-linecap="round"/>
+    <path d="M55 60 C55 44, 125 44, 125 60" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" opacity=".95"/>
+    <!-- inner shine -->
+    <rect x="20" y="48" rx="18" ry="18" width="140" height="110" fill="url(#g1)" opacity=".12"/>
+    <defs>
+      <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#fff"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <!-- Monogram -->
+    <text x="90" y="118" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="900" font-size="44" fill="white" letter-spacing=".5">
+      WB
+    </text>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="190" y="120" font-family="Poppins, Arial, sans-serif" font-weight="800" font-size="56" fill="#111">
+    WB<tspan fill="#e60012">V</tspan>ibes
   </text>
 </svg>
