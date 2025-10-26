@@ -50,6 +50,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@pinia/nuxt',
     '@vueuse/nuxt',
+    '@nuxt/icon',
   ],
 
   // PostCSS configuration
