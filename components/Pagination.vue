@@ -26,7 +26,8 @@
       </NuxtLink>
       <span
         v-else
-        class="px-3 py-2 text-sm font-medium text-white bg-brand-600 border border-brand-600 rounded-lg"
+        class="px-3 py-2 text-sm font-medium text-white bg-brand-600 border border-brand-600 rounded-lg border-[#000]" 
+        style="color: black;"
       >
         {{ page }}
       </span>

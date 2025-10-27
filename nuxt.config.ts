@@ -15,6 +15,16 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#ffffff' },
         // Google Search Console verification (set env NUXT_PUBLIC_GSC_VERIFICATION)
       ],
+      script:
+        process.env.NODE_ENV === 'production' && process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID
+          ? [
+              {
+                src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID}`,
+                async: true,
+                crossorigin: 'anonymous',
+              },
+            ]
+          : [],
     },
   },
 
@@ -61,3 +71,4 @@ export default defineNuxtConfig({
     },
   },
 })
+
