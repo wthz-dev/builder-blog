@@ -14,6 +14,9 @@ export default defineNuxtConfig({
       meta: [
         { name: 'theme-color', content: '#ffffff' },
         // Google Search Console verification (set env NUXT_PUBLIC_GSC_VERIFICATION)
+        ...(process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID
+          ? [{ name: 'google-adsense-account', content: String(process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID) }]
+          : []),
       ],
       script:
         process.env.NODE_ENV === 'production' && process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID

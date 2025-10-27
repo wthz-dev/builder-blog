@@ -15,6 +15,9 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 
 
 export const AdsenseBanner: typeof import("../components/AdsenseBanner.vue")['default']
+export const AdsenseInArticle: typeof import("../components/AdsenseInArticle.vue")['default']
+export const AdsenseInFeed: typeof import("../components/AdsenseInFeed.vue")['default']
+export const AdsenseResponsive: typeof import("../components/AdsenseResponsive.vue")['default']
 export const ChipSkeleton: typeof import("../components/ChipSkeleton.vue")['default']
 export const CommentSkeleton: typeof import("../components/CommentSkeleton.vue")['default']
 export const NavBar: typeof import("../components/NavBar.vue")['default']
@@ -48,6 +51,9 @@ export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const NuxtRouteAnnouncer: typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']
 export const LazyAdsenseBanner: LazyComponent<typeof import("../components/AdsenseBanner.vue")['default']>
+export const LazyAdsenseInArticle: LazyComponent<typeof import("../components/AdsenseInArticle.vue")['default']>
+export const LazyAdsenseInFeed: LazyComponent<typeof import("../components/AdsenseInFeed.vue")['default']>
+export const LazyAdsenseResponsive: LazyComponent<typeof import("../components/AdsenseResponsive.vue")['default']>
 export const LazyChipSkeleton: LazyComponent<typeof import("../components/ChipSkeleton.vue")['default']>
 export const LazyCommentSkeleton: LazyComponent<typeof import("../components/CommentSkeleton.vue")['default']>
 export const LazyNavBar: LazyComponent<typeof import("../components/NavBar.vue")['default']>
