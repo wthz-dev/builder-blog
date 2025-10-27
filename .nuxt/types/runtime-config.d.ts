@@ -23,6 +23,10 @@ import { RuntimeConfig as UserRuntimeConfig, PublicRuntimeConfig as UserPublicRu
    nitro: {
       envPrefix: string,
    },
+
+   icon: {
+      serverKnownCssClasses: Array<any>,
+   },
   }
   interface SharedPublicRuntimeConfig {
    siteUrl: string,

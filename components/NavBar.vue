@@ -4,8 +4,9 @@
       <div class="flex h-16 items-center justify-between">
         <!-- Brand -->
         <NuxtLink to="/" class="flex items-center gap-2">
-          <img src="/logo.svg" alt="WhiteBikeVibes" class="block h-10 w-auto sm:h-[60px]" @error="logoError=true" v-if="!logoError" />
+          <img src="/new_logo.png" alt="WhiteBikeVibes" class="block h-10 w-auto sm:h-[60px]" @error="logoError=true" v-if="!logoError" />
           <span v-else class="text-xl font-extrabold tracking-tight text-ink-900">WhiteBikeVibes</span>
+          <span class="text-xl font-extrabold tracking-tight text-ink-900">WhiteBikeVibes</span>
         </NuxtLink>
 
         <!-- Desktop menu -->
@@ -13,6 +14,7 @@
           <NuxtLink to="/" class="text-ink-600 hover:text-ink-900 transition-colors">หน้าแรก</NuxtLink>
           <NuxtLink to="/about" class="text-ink-600 hover:text-ink-900 transition-colors">เกี่ยวกับ</NuxtLink>
           <NuxtLink to="/contact" class="text-ink-600 hover:text-ink-900 transition-colors">ติดต่อ</NuxtLink>
+          <NuxtLink to="/privacy-policy" class="text-ink-600 hover:text-ink-900 transition-colors">นโยบายความเป็นส่วนตัว</NuxtLink>
         </div>
 
         <!-- Right side (search, theme, auth) - desktop -->
@@ -87,6 +89,7 @@
               <NuxtLink to="/" class="px-3 py-2 rounded-lg text-ink-700 hover:bg-ink-50" @click="close()">หน้าแรก</NuxtLink>
               <NuxtLink to="/about" class="px-3 py-2 rounded-lg text-ink-700 hover:bg-ink-50" @click="close()">เกี่ยวกับ</NuxtLink>
               <NuxtLink to="/contact" class="px-3 py-2 rounded-lg text-ink-700 hover:bg-ink-50" @click="close()">ติดต่อ</NuxtLink>
+              <NuxtLink to="/privacy-policy" class="px-3 py-2 rounded-lg text-ink-700 hover:bg-ink-50" @click="close()">นโยบายความเป็นส่วนตัว</NuxtLink>
               <div class="h-px bg-ink-200 my-2" />
               <template v-if="user">
                 <NuxtLink to="/profile" class="px-3 py-2 rounded-lg text-ink-700 hover:bg-ink-50" @click="close()">โปรไฟล์ ({{ user.name }})</NuxtLink>

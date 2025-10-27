@@ -59,6 +59,19 @@
               <option value="title_desc">ชื่อเรื่อง Z → A</option>
             </select>
           </div>
+          <div>
+            <label class="block text-xs font-medium text-ink-600 mb-1">แสดงต่อหน้า</label>
+            <select v-model.number="perPage" class="px-3 py-2 border border-ink-200 rounded-lg bg-white">
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+            </select>
+          </div>
+          <div class="ml-auto text-sm text-ink-600">
+            <span>{{ displayFrom }}–{{ displayTo }}</span>
+            <span class="mx-1">จาก</span>
+            <span>{{ filteredPosts.length }}</span>
+          </div>
           <div class="flex gap-2">
             <button class="px-3 py-2 border border-ink-200 rounded-lg" @click="clearFilters">ล้างตัวกรอง</button>
             <button class="px-3 py-2 border border-ink-200 rounded-lg" @click="copyShareLink">คัดลอกลิงก์ตัวกรอง</button>
@@ -67,7 +80,7 @@
 
         <div class="overflow-x-auto border border-ink-100 rounded-xl">
           <table class="min-w-full divide-y divide-ink-100 bg-white">
-            <thead class="bg-ink-50">
+            <thead class="bg-ink-50 sticky top-0 z-10">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-ink-600 uppercase tracking-wider">ชื่อเรื่อง</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-ink-600 uppercase tracking-wider">เผยแพร่เมื่อ</th>
@@ -80,7 +93,7 @@
               <template v-if="pending">
                 <TableRowSkeleton v-for="i in 8" :key="`s-${i}`" />
               </template>
-              <tr v-else v-for="p in filteredPosts" :key="p.id">
+              <tr v-else v-for="p in pagedPosts" :key="p.id" class="odd:bg-ink-50/40 hover:bg-ink-50">
                 <td class="px-4 py-3 text-ink-900">{{ p.title }}</td>
                 <td class="px-4 py-3 text-ink-700">{{ formatDate(p.publishedAt) }}</td>
                 <td class="px-4 py-3 text-ink-700">{{ p.author?.name }}</td>
@@ -92,11 +105,11 @@
                   </div>
                 </td>
                 <td class="px-4 py-3 text-right">
-                  <div class="flex items-center justify-end gap-3">
-                    <NuxtLink :to="`/post/${p.slug}`" class="text-brand-600 hover:text-brand-700">ดูโพสต์</NuxtLink>
-                    <NuxtLink :to="`/admin/posts/${p.id}/edit`" class="text-ink-600 hover:text-ink-900">แก้ไข</NuxtLink>
+                  <div class="flex items-center justify-end gap-2">
+                    <NuxtLink :to="`/post/${p.slug}`" class="px-2 py-1 rounded border border-brand-200 text-brand-700 hover:bg-brand-50">ดู</NuxtLink>
+                    <NuxtLink :to="`/admin/posts/${p.id}/edit`" class="px-2 py-1 rounded border border-ink-200 text-ink-700 hover:bg-ink-50">แก้ไข</NuxtLink>
                     <form :action="`/api/admin/posts/${p.id}/delete`" method="post" class="inline">
-                      <button type="submit" class="text-red-600 hover:text-red-700" @click.prevent="onDelete(p.id)">ลบ</button>
+                      <button type="submit" class="px-2 py-1 rounded border border-red-200 text-red-700 hover:bg-red-50" @click.prevent="onDelete(p.id)">ลบ</button>
                     </form>
                   </div>
                 </td>
@@ -105,6 +118,11 @@
           </table>
         </div>
         <div v-if="!posts || posts.length === 0" class="text-ink-600 mt-4">ยังไม่มีโพสต์</div>
+        <div v-else class="flex items-center justify-center gap-3 mt-4">
+          <button class="px-3 py-2 border border-ink-200 rounded-lg disabled:opacity-50" :disabled="page === 1" @click="goToPage(page - 1)">ก่อนหน้า</button>
+          <div class="text-sm text-ink-700">หน้า {{ page }} / {{ totalPages }}</div>
+          <button class="px-3 py-2 border border-ink-200 rounded-lg disabled:opacity-50" :disabled="page === totalPages" @click="goToPage(page + 1)">ถัดไป</button>
+        </div>
       </div>
     </div>
   </div>
@@ -141,6 +159,8 @@ const selectedTags = ref<string[]>([])
 const fromDate = ref('')
 const toDate = ref('')
 const sortKey = ref<'date_desc'|'date_asc'|'title_asc'|'title_desc'>('date_desc')
+const page = ref(1)
+const perPage = ref(10)
 const categoryOptions = computed(() => {
   const set = new Set<string>()
   for (const p of posts.value || []) {
@@ -193,6 +213,18 @@ const filteredPosts = computed(() => {
     }
   })
 })
+const totalPages = computed(() => Math.max(1, Math.ceil((filteredPosts.value.length || 0) / perPage.value)))
+const pagedPosts = computed(() => {
+  const start = (page.value - 1) * perPage.value
+  return filteredPosts.value.slice(start, start + perPage.value)
+})
+const displayFrom = computed(() => filteredPosts.value.length ? (page.value - 1) * perPage.value + 1 : 0)
+const displayTo = computed(() => Math.min(filteredPosts.value.length, page.value * perPage.value))
+function goToPage(n: number) {
+  if (n < 1) n = 1
+  if (n > totalPages.value) n = totalPages.value
+  page.value = n
+}
 function clearFilters() {
   searchTerm.value = ''
   selectedCategories.value = []
@@ -233,6 +265,14 @@ onMounted(() => {
   if (typeof q.from === 'string') fromDate.value = q.from
   if (typeof q.to === 'string') toDate.value = q.to
   if (typeof q.sort === 'string' && ['date_desc','date_asc','title_asc','title_desc'].includes(q.sort)) sortKey.value = q.sort as any
+  if (typeof q.page === 'string') {
+    const n = parseInt(q.page, 10)
+    if (!Number.isNaN(n) && n > 0) page.value = n
+  }
+  if (typeof q.perPage === 'string') {
+    const n = parseInt(q.perPage, 10)
+    if (!Number.isNaN(n) && [10,20,50].includes(n)) perPage.value = n
+  }
 })
 watch([searchTerm, selectedCategories, selectedTags], () => {
   const q: any = {}
@@ -242,10 +282,13 @@ watch([searchTerm, selectedCategories, selectedTags], () => {
   if (fromDate.value) q.from = fromDate.value
   if (toDate.value) q.to = toDate.value
   if (sortKey.value && sortKey.value !== 'date_desc') q.sort = sortKey.value
+  page.value = 1
+  q.page = String(page.value)
+  if (perPage.value !== 10) q.perPage = String(perPage.value)
   router.replace({ query: q })
 }, { deep: true })
 
-watch([fromDate, toDate, sortKey], () => {
+watch([fromDate, toDate, sortKey, page, perPage], () => {
   const q: any = {}
   if (searchTerm.value) q.q = searchTerm.value
   if (selectedCategories.value.length) q.categories = selectedCategories.value.join(',')
@@ -253,7 +296,16 @@ watch([fromDate, toDate, sortKey], () => {
   if (fromDate.value) q.from = fromDate.value
   if (toDate.value) q.to = toDate.value
   if (sortKey.value && sortKey.value !== 'date_desc') q.sort = sortKey.value
+  if (page.value && page.value !== 1) q.page = String(page.value)
+  if (perPage.value && perPage.value !== 10) q.perPage = String(perPage.value)
   router.replace({ query: q })
+})
+
+watch(perPage, () => {
+  if (page.value > totalPages.value) page.value = totalPages.value
+})
+watch(filteredPosts, () => {
+  if (page.value > totalPages.value) page.value = totalPages.value
 })
 
 async function copyShareLink() {
