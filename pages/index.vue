@@ -83,7 +83,7 @@
   <!-- Categories & Tags + AdSense -->
   <section class="container mx-auto px-4 py-10">
     <AdsenseBanner />
-
+    <AdsenseInFeed  />
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
       <!-- Categories -->
       <div class="lg:col-span-2 bg-white border border-ink-100 rounded-xl p-6">

@@ -15,6 +15,9 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 
 interface _GlobalComponents {
       'AdsenseBanner': typeof import("../../components/AdsenseBanner.vue")['default']
+    'AdsenseInArticle': typeof import("../../components/AdsenseInArticle.vue")['default']
+    'AdsenseInFeed': typeof import("../../components/AdsenseInFeed.vue")['default']
+    'AdsenseResponsive': typeof import("../../components/AdsenseResponsive.vue")['default']
     'ChipSkeleton': typeof import("../../components/ChipSkeleton.vue")['default']
     'CommentSkeleton': typeof import("../../components/CommentSkeleton.vue")['default']
     'NavBar': typeof import("../../components/NavBar.vue")['default']
@@ -48,6 +51,9 @@ interface _GlobalComponents {
     'NuxtIsland': typeof import("../../node_modules/nuxt/dist/app/components/nuxt-island")['default']
     'NuxtRouteAnnouncer': typeof import("../../node_modules/nuxt/dist/app/components/server-placeholder")['default']
       'LazyAdsenseBanner': LazyComponent<typeof import("../../components/AdsenseBanner.vue")['default']>
+    'LazyAdsenseInArticle': LazyComponent<typeof import("../../components/AdsenseInArticle.vue")['default']>
+    'LazyAdsenseInFeed': LazyComponent<typeof import("../../components/AdsenseInFeed.vue")['default']>
+    'LazyAdsenseResponsive': LazyComponent<typeof import("../../components/AdsenseResponsive.vue")['default']>
     'LazyChipSkeleton': LazyComponent<typeof import("../../components/ChipSkeleton.vue")['default']>
     'LazyCommentSkeleton': LazyComponent<typeof import("../../components/CommentSkeleton.vue")['default']>
     'LazyNavBar': LazyComponent<typeof import("../../components/NavBar.vue")['default']>
