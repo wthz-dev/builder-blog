@@ -99,6 +99,27 @@
           </NuxtLink>
         </div>
 
+        <!-- Related Posts -->
+        <section v-if="related && related.length" class="mb-12">
+          <h2 class="text-lg font-semibold text-ink-900 mb-4">บทความที่เกี่ยวข้อง</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <NuxtLink
+              v-for="rp in related"
+              :key="rp.id"
+              :to="`/post/${encodeURIComponent(rp.slug)}`"
+              class="rounded-xl border border-ink-100 bg-white hover:shadow-soft transition overflow-hidden"
+            >
+              <div class="aspect-[16/9] bg-ink-50">
+                <NuxtImg v-if="rp.coverImageUrl" :src="rp.coverImageUrl" :alt="rp.title" class="w-full h-full object-cover" />
+              </div>
+              <div class="p-4">
+                <h3 class="font-semibold text-ink-900 line-clamp-2">{{ rp.title }}</h3>
+                <p class="text-sm text-ink-600 line-clamp-2 mt-1">{{ rp.excerpt }}</p>
+              </div>
+            </NuxtLink>
+          </div>
+        </section>
+
         <!-- Comments Section -->
         <section class="rounded-xl border border-ink-100 bg-white p-6 shadow-sm">
           <h2 class="mb-4 text-lg font-semibold text-ink-900">ความคิดเห็น</h2>
@@ -151,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue'
 import { usePageBlocker } from '@/composables/usePageBlocker'
 const { user, logout } = useAuth()
 const route = useRoute()
@@ -181,30 +202,17 @@ useSeoMeta({
   description: () => post.value?.excerpt || '',
   ogTitle: () => post.value?.title || '',
   ogDescription: () => post.value?.excerpt || '',
-  ogImage: () => post.value?.coverImageUrl || '/og-image.jpg',
+  ogImage: () => {
+    const cover = post.value?.coverImageUrl
+    if (cover) return cover
+    const title = encodeURIComponent(post.value?.title || 'WhiteBikeVibes')
+    return `https://og-image.vercel.app/${title}.png?theme=light&md=1&fontSize=64px`
+  },
   ogUrl: () => canonicalUrl.value,
   twitterCard: 'summary_large_image',
   twitterSite: () => (runtime.public as any)?.twitterSite || '@whitebikevibes',
   twitterCreator: () => (runtime.public as any)?.twitterCreator || '@whitebikevibes'
 })
-
-// Temporarily remove useHead scripts to prevent dispose error
-// TODO: Find alternative solution for JSON-LD and canonical
-// useHead(() => ({
-//   link: [
-//     { rel: 'canonical', href: canonicalUrl.value }
-//   ],
-//   script: [
-//     ...(postSchema.value ? [{
-//       type: 'application/ld+json',
-//       innerHTML: postSchema.value
-//     }] : []),
-//     ...(postBreadcrumbSchema.value ? [{
-//       type: 'application/ld+json', 
-//       innerHTML: postBreadcrumbSchema.value
-//     }] : [])
-//   ]
-// }))
 
 // Add canonical link and JSON-LD directly in template
 const postSchema = computed(() => {
@@ -229,6 +237,22 @@ const postSchema = computed(() => {
   })
 })
 
+// Related posts (by first tag or category)
+const related = ref<any[]>([])
+watchEffect(async () => {
+  if (!post.value) return
+  const firstTag = post.value.tags?.[0]?.name
+  const firstCat = post.value.categories?.[0]?.name
+  const query: Record<string, any> = { limit: 6 }
+  if (firstTag) query.tag = firstTag
+  else if (firstCat) query.category = firstCat
+  try {
+    const res: any = await $fetch('/api/posts', { query })
+    const items = (res?.posts || []) as any[]
+    related.value = items.filter(p => p.id !== post.value?.id).slice(0, 4)
+  } catch {}
+})
+
 const postBreadcrumbSchema = computed(() => {
   if (!post.value) return ''
   return JSON.stringify({
@@ -239,6 +263,22 @@ const postBreadcrumbSchema = computed(() => {
       { '@type': 'ListItem', position: 2, name: post.value.title, item: canonicalUrl.value }
     ]
   })
+})
+
+useHead(() => {
+  const script: any[] = []
+  if (postSchema.value) {
+    script.push({ type: 'application/ld+json', children: postSchema.value })
+  }
+  if (postBreadcrumbSchema.value) {
+    script.push({ type: 'application/ld+json', children: postBreadcrumbSchema.value })
+  }
+  return {
+    link: [
+      { rel: 'canonical', href: canonicalUrl.value }
+    ],
+    script
+  }
 })
 
 // Submit comment
