@@ -109,6 +109,7 @@ useSeoMeta({
   ogDescription: 'โปรไฟล์ผู้ใช้ WhiteBikeVibes',
   ogImage: '/og-image.jpg',
   twitterCard: 'summary_large_image',
+  robots: 'noindex, nofollow',
 })
 
 // รองรับการรีเฟรชหน้า (CSR)

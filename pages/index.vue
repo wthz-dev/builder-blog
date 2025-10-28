@@ -82,7 +82,7 @@
 
   <!-- Categories & Tags + AdSense -->
   <section class="container mx-auto px-4 py-10">
-    <AdsenseBanner />
+    <AdsenseBanner v-if="(filteredPosts && filteredPosts.length) > 0" ad-slot="4826236713" />
     <AdsenseInFeed  />
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
       <!-- Categories -->
