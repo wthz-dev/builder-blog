@@ -93,6 +93,17 @@
     </div>
   </section>
 
+  <!-- YouTube Highlight -->
+  <!-- <section class="container mx-auto px-4 pt-4">
+    <div class="rounded-2xl border border-ink-100 bg-white p-4 md:p-6 shadow-sm">
+      <ClientOnly>
+        <div class="grid grid-cols-1 gap-6">
+          <YouTubeEmbed video-id="WV80aCOVUT8" title="WhiteBikeVibes YouTube" />
+        </div>
+      </ClientOnly>
+    </div>
+  </section> -->
+
   <!-- Categories & Tags + AdSense -->
   <section class="container mx-auto px-4 py-10">
     <AdsenseBanner v-if="(filteredPosts && filteredPosts.length) > 0" ad-slot="4826236713" />

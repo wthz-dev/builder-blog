@@ -47,6 +47,7 @@
                     <NuxtLink to="/admin/posts" class="px-3 py-2 flex items-center gap-2 text-sm hover:bg-ink-50 rounded-lg" @click="g('nav_admin_posts'); closeMenu()">จัดการโพสต์</NuxtLink>
                     <NuxtLink to="/admin/contacts" class="px-3 py-2 flex items-center gap-2 text-sm hover:bg-ink-50 rounded-lg" @click="g('nav_admin_contacts'); closeMenu()">รายการติดต่อ</NuxtLink>
                     <NuxtLink to="/admin/posts/new" class="px-3 py-2 flex items-center gap-2 text-sm hover:bg-ink-50 rounded-lg" @click="g('nav_admin_new_post'); closeMenu()">+ เพิ่มโพสต์</NuxtLink>
+                    <NuxtLink to="/admin/users" class="px-3 py-2 flex items-center gap-2 text-sm hover:bg-ink-50 rounded-lg" @click="g('nav_admin_users'); closeMenu()">จัดการผู้ใช้</NuxtLink>
                   </template>
                   <div class="h-px bg-ink-100 my-1"></div>
                   <button class="px-3 py-2 w-full text-left text-sm hover:bg-ink-50 rounded-lg" @click="handleLogout">ออกจากระบบ</button>
