@@ -68,6 +68,9 @@
           />
         </div>
 
+        <!-- Ad: In-Article below header/cover -->
+        <AdsenseInArticle v-if="post" ad-slot="4826236713" />
+
         <!-- Share Buttons -->
         <div class="mb-8 flex flex-wrap items-center gap-3">
           <button @click="shareNative" class="rounded-full bg-black text-white px-4 py-2 text-sm hover:bg-black/80">แชร์</button>
@@ -80,6 +83,9 @@
 
         <!-- Post Content -->
         <div class="prose prose-ink max-w-none mb-8" v-html="post.content" />
+
+        <!-- Ad: Responsive below content -->
+        <AdsenseResponsive v-if="post" ad-slot="4826236713" />
 
         <!-- Tags -->
         <div v-if="post.tags && post.tags.length > 0" class="flex flex-wrap gap-2 mb-12">

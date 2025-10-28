@@ -49,7 +49,8 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterImage: () => ogImage.value,
   twitterSite,
-  twitterCreator
+  twitterCreator,
+  robots: () => (posts.value.length < 3 ? 'noindex, follow' : 'index, follow'),
 })
 
 // Removed useHead to prevent HMR dispose errors
