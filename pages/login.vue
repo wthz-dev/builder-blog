@@ -44,6 +44,24 @@
           </button>
         </form>
         
+        <div class="mt-6">
+          <div class="relative my-4">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+              <div class="w-full border-t border-ink-200"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="bg-white px-2 text-ink-500">หรือ</span>
+            </div>
+          </div>
+          <a
+            href="/api/auth/google"
+            class="w-full inline-flex items-center justify-center gap-2 border border-ink-200 rounded-lg px-4 py-2.5 font-medium hover:bg-ink-50 transition-colors"
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="h-5 w-5" />
+            เข้าสู่ระบบด้วย Google
+          </a>
+        </div>
+
         <div class="mt-6 text-center">
           <p class="text-sm text-ink-600">
             ยังไม่มีบัญชี? 
