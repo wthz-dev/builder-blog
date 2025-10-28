@@ -1,3 +1,4 @@
+import { defineEventHandler, getCookie, createError } from 'h3'
 import { prisma } from '~/lib/prisma'
 import jwt from 'jsonwebtoken'
 

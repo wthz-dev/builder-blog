@@ -3,6 +3,7 @@
 // Prisma to be bundled into the client build and failed on Vercel.
 // Sitemap generation is now handled exclusively by `server/routes/sitemap.xml.ts`.
 // We keep this stub to avoid accidental Prisma imports at pages-level.
+import { defineEventHandler, setHeader } from 'h3'
 
 export default defineEventHandler((event) => {
   // Delegate to server route (same pathname) to serve sitemap.
