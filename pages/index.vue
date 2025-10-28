@@ -80,46 +80,81 @@
     </div>
   </section>
 
+  <!-- TikTok Highlight -->
+  <section class="container mx-auto px-4 pt-4">
+    <div class="rounded-2xl border border-ink-100 bg-white p-4 md:p-6 shadow-sm">
+      <ClientOnly>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 place-items-center">
+          <TikTokEmbed username="whitez52" video-id="7548828705611599111" />
+          <TikTokEmbed username="whitez52" video-id="7565552035001683218" />
+          <TikTokEmbed username="whitez52" video-id="7548425920365808914" />
+        </div>
+      </ClientOnly>
+    </div>
+  </section>
+
   <!-- Categories & Tags + AdSense -->
   <section class="container mx-auto px-4 py-10">
     <AdsenseBanner v-if="(filteredPosts && filteredPosts.length) > 0" ad-slot="4826236713" />
-    <AdsenseInFeed  />
+    <AdsenseInFeed />
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
       <!-- Categories -->
-      <div class="lg:col-span-2 bg-white border border-ink-100 rounded-xl p-6">
-        <h2 class="text-xl font-semibold text-ink-900 mb-4">หมวดหมู่ (Categories)</h2>
-        <div v-if="catsPending" class="flex flex-wrap gap-3">
-          <ChipSkeleton v-for="i in 8" :key="`cat-s-${i}`" />
+      <div class="lg:col-span-2 bg-white border border-ink-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-semibold text-ink-900">หมวดหมู่ (Categories)</h2>
+            <p class="text-sm text-ink-500 mt-1">สำรวจหัวข้อที่คุณสนใจ</p>
+          </div>
+          <button v-if="categories && categories.length > catLimit" class="text-sm text-ink-600 hover:text-ink-900" @click="showAllCats = !showAllCats">
+            {{ showAllCats ? 'แสดงน้อยลง' : 'แสดงทั้งหมด' }}
+          </button>
         </div>
-        <div v-else class="flex flex-wrap gap-3">
+        <div v-if="catsPending" class="flex flex-wrap gap-3">
+          <ChipSkeleton v-for="i in 10" :key="`cat-s-${i}`" />
+        </div>
+        <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-3">
           <NuxtLink
-            v-for="c in categories"
+            v-for="c in displayedCategories"
             :key="c.id"
             :to="`/category/${encodeURIComponent(c.name)}`"
-            class="inline-flex items-center gap-2 rounded-full border border-ink-200 px-4 py-2 text-sm text-ink-700 hover:bg-ink-50"
+            class="group inline-flex items-center justify-between rounded-xl border border-ink-100 bg-ink-50 px-3 py-2 text-sm text-ink-800 hover:bg-white hover:shadow-soft hover:-translate-y-[1px] transition"
           >
-            <span>{{ c.name }}</span>
-            <span class="text-ink-500">({{ c.count }})</span>
+            <span class="truncate">{{ c.name }}</span>
+            <span class="ml-2 grid h-6 min-w-6 place-items-center rounded-lg bg-white text-ink-700 border border-ink-200 text-[12px] px-1">{{ c.count }}</span>
           </NuxtLink>
         </div>
       </div>
 
       <!-- Popular Tags -->
-      <div class="bg-white border border-ink-100 rounded-xl p-6">
-        <h2 class="text-xl font-semibold text-ink-900 mb-4">แท็กยอดนิยม (Popular Tags)</h2>
+      <div class="bg-white border border-ink-100 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-semibold text-ink-900">แท็กยอดนิยม (Popular Tags)</h2>
+            <p class="text-sm text-ink-500 mt-1">ค้นหาแท็กหรือเลือกจากคลาวด์</p>
+          </div>
+        </div>
+        <div class="mb-3">
+          <input v-model.trim="tagFilter" type="search" placeholder="ค้นหาแท็ก..." class="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-300" />
+        </div>
         <div v-if="tagsPending" class="flex flex-wrap gap-2">
           <ChipSkeleton v-for="i in 12" :key="`tag-s-${i}`" />
         </div>
-        <div v-else class="flex flex-wrap gap-2">
+        <div v-else class="flex flex-wrap gap-2 items-center">
           <NuxtLink
-            v-for="t in popularTags"
+            v-for="t in displayedTags"
             :key="t.id"
             :to="`/tag/${encodeURIComponent(t.name)}`"
-            class="rounded-full bg-ink-100 px-3 py-1 text-xs font-medium text-ink-800 hover:bg-ink-200"
+            class="rounded-full border border-ink-200 px-3 py-1 font-medium text-ink-800 hover:bg-ink-50 transition"
+            :class="tagSizeClass(t.count)"
             :title="`${t.name} (${t.count})`"
           >
             #{{ t.name }}
           </NuxtLink>
+        </div>
+        <div v-if="filteredPopularTags.length > tagLimit" class="mt-3 text-right">
+          <button class="text-sm text-ink-600 hover:text-ink-900" @click="showAllTags = !showAllTags">
+            {{ showAllTags ? 'แสดงน้อยลง' : 'แสดงแท็กเพิ่มเติม' }}
+          </button>
         </div>
       </div>
 
@@ -316,6 +351,31 @@ const popularTags = computed(() => {
   const list = (tagsData.value?.tags || []) as Array<{ id: string; name: string; count: number }>
   return [...list].sort((a, b) => b.count - a.count).slice(0, 20)
 })
+
+// UI state: Categories (show more)
+const catLimit = 12
+const showAllCats = ref(false)
+const displayedCategories = computed(() => {
+  const list = categories.value || []
+  return showAllCats.value ? list : list.slice(0, catLimit)
+})
+
+// UI state: Tags (filter + show more + size)
+const tagFilter = ref('')
+const tagLimit = 24
+const showAllTags = ref(false)
+const filteredPopularTags = computed(() => {
+  const q = tagFilter.value.trim().toLowerCase()
+  const list = popularTags.value || []
+  if (!q) return list
+  return list.filter(t => (t.name || '').toLowerCase().includes(q))
+})
+const displayedTags = computed(() => showAllTags.value ? filteredPopularTags.value : filteredPopularTags.value.slice(0, tagLimit))
+function tagSizeClass(count: number) {
+  if (count >= 30) return 'text-sm'
+  if (count >= 15) return 'text-[13px]'
+  return 'text-xs'
+}
 
 // Utility function
 function formatDate(dateString: string) {

@@ -53,8 +53,8 @@
 #nprogress .spinner {
   display: none; /* hide spinner */
 }
-
+/* 
 html {
-  filter: grayscale(100%);
-  -webkit-filter: grayscale(60%);
-}
+  filter: grayscale(80%);
+  -webkit-filter: grayscale(50%);
+} */

@@ -67,6 +67,30 @@ export default defineNuxtConfig({
     '@nuxt/icon',
   ],
 
+  // Nitro/Hosting behaviors
+  routeRules: {
+    '/': { isr: 300 },
+    '/post/**': { isr: 600 },
+    '/category/**': { isr: 600 },
+    '/tag/**': { isr: 600 },
+    '/sitemap.xml': { cache: { maxAge: 300 } },
+    '/robots.txt': { cache: { maxAge: 86400 } },
+    '/**': {
+      headers: {
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'geolocation=(), camera=(), microphone=()',
+      }
+    }
+  },
+
+  image: {
+    format: ['webp', 'avif'],
+    quality: 80,
+    screens: { xs: 320, sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 },
+  },
+
   // PostCSS configuration
   postcss: {
     plugins: {
