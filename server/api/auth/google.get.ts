@@ -1,4 +1,4 @@
-import { H3Event } from 'h3'
+import { H3Event, defineEventHandler, createError, getRequestURL, sendRedirect } from 'h3'
 
 export default defineEventHandler(async (event: H3Event) => {
   const config = useRuntimeConfig()

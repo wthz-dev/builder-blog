@@ -1,3 +1,4 @@
+import { defineEventHandler, createError, getRequestURL, sendRedirect } from 'h3'
 import { prisma } from '~/lib/prisma'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
