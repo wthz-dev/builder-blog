@@ -42,6 +42,8 @@ export default defineNuxtConfig({
     cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
     cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     // Public runtime config available on client
     public: {
       siteUrl:
@@ -52,9 +54,8 @@ export default defineNuxtConfig({
       adsensePublisherId: process.env.NUXT_PUBLIC_ADSENSE_PUBLISHER_ID || '',
       gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || '',
       twitterSite: process.env.NUXT_PUBLIC_TWITTER_SITE || '@whitez52',
-      twitterCreator: process.env.NUXT_PUBLIC_TWITTER_CREATOR || '@whitez52'
-      // optional: Google Search Console verification token
-      // e.g. NUXT_PUBLIC_GSC_VERIFICATION="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      twitterCreator: process.env.NUXT_PUBLIC_TWITTER_CREATOR || '@whitez52',
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
     },
   },
 
